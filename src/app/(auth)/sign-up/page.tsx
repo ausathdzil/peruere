@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -31,11 +31,16 @@ const signUpFormSchema = z.object({
   name: z
     .string()
     .min(2, { error: 'Name must be at least 2 characters long.' })
+    .max(50, { error: 'Name must be 50 characters or fewer.' })
     .trim(),
-  email: z.email({ error: 'Please enter a valid email.' }).trim(),
+  email: z
+    .email({ error: 'Please enter a valid email.' })
+    .max(255, { error: 'Email must be 255 characters or fewer.' })
+    .trim(),
   password: z
     .string()
     .min(8, { error: 'Be at least 8 characters long' })
+    .max(128, { error: 'Password must be 128 characters or fewer.' })
     .regex(/[a-zA-Z]/, { error: 'Contain at least one letter.' })
     .regex(/[0-9]/, { error: 'Contain at least one number.' })
     .regex(/[^a-zA-Z0-9]/, {
@@ -49,6 +54,7 @@ type SignUpFieldValues = z.infer<typeof signUpFormSchema>;
 export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const id = useId();
 
   const form = useForm<SignUpFieldValues>({
     resolver: zodResolver(signUpFormSchema),
@@ -62,6 +68,8 @@ export default function SignUpPage() {
   const router = useRouter();
 
   const handleSubmit = async (values: SignUpFieldValues) => {
+    const key = crypto.randomUUID();
+
     await signUp.email(values, {
       onRequest: () => setLoading(true),
       onResponse: () => {
@@ -72,6 +80,9 @@ export default function SignUpPage() {
       },
       onError: (ctx) => {
         form.setError('root', { message: ctx.error.message });
+      },
+      headers: {
+        'Idempotency-Key': key,
       },
     });
   };
@@ -93,14 +104,18 @@ export default function SignUpPage() {
           name="name"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
+              <FieldLabel htmlFor={`${id}-name`}>Full Name</FieldLabel>
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
-                id="name"
+                autoComplete="name"
+                id={`${id}-name`}
+                maxLength={50}
+                minLength={2}
                 name="name"
                 placeholder="John Doe"
                 required
+                spellCheck="false"
                 type="text"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -112,20 +127,19 @@ export default function SignUpPage() {
           name="email"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <FieldLabel htmlFor={`${id}-email`}>Email</FieldLabel>
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
-                id="email"
+                autoComplete="email"
+                id={`${id}-email`}
+                maxLength={255}
                 name="email"
                 placeholder="m@example.com"
                 required
+                spellCheck="false"
                 type="email"
               />
-              <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -135,13 +149,17 @@ export default function SignUpPage() {
           name="password"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <InputGroup aria-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={`${id}-password`}>Password</FieldLabel>
+              <InputGroup>
                 <InputGroupInput
                   {...field}
-                  id="password"
+                  aria-invalid={fieldState.invalid}
+                  id={`${id}-password`}
+                  maxLength={255}
+                  minLength={8}
                   name="password"
                   required
+                  spellCheck="false"
                   type={showPassword ? 'text' : 'password'}
                 />
                 <InputGroupAddon align="inline-end">

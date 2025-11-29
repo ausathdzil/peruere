@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -28,8 +28,15 @@ import { Spinner } from '@/components/ui/spinner';
 import { signIn } from '@/lib/auth/client';
 
 const signInFormSchema = z.object({
-  email: z.email({ error: 'Please enter a valid email.' }).trim(),
-  password: z.string({ error: 'Please enter a valid password.' }).trim(),
+  email: z
+    .email({ error: 'Please enter a valid email.' })
+    .max(255, { error: 'Email must be 255 characters or fewer.' })
+    .trim(),
+  password: z
+    .string()
+    .min(1, { error: 'Password is required.' })
+    .max(128, { error: 'Password must be 128 characters or fewer.' })
+    .trim(),
 });
 
 type SignInFieldValues = z.infer<typeof signInFormSchema>;
@@ -37,6 +44,7 @@ type SignInFieldValues = z.infer<typeof signInFormSchema>;
 export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const id = useId();
 
   const form = useForm<SignInFieldValues>({
     resolver: zodResolver(signInFormSchema),
@@ -49,6 +57,8 @@ export default function SignInPage() {
   const router = useRouter();
 
   const handleSubmit = async (values: SignInFieldValues) => {
+    const key = crypto.randomUUID();
+
     await signIn.email(values, {
       onRequest: () => setLoading(true),
       onResponse: () => {
@@ -59,6 +69,9 @@ export default function SignInPage() {
       },
       onError: (ctx) => {
         form.setError('root', { message: ctx.error.message });
+      },
+      headers: {
+        'Idempotency-Key': key,
       },
     });
   };
@@ -80,14 +93,17 @@ export default function SignInPage() {
           name="email"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <FieldLabel htmlFor={`${id}-email`}>Email</FieldLabel>
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
-                id="email"
+                autoComplete="email"
+                id={`${id}-email`}
+                maxLength={255}
                 name="email"
                 placeholder="m@example.com"
                 required
+                spellCheck="false"
                 type="email"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -99,13 +115,15 @@ export default function SignInPage() {
           name="password"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <FieldLabel htmlFor={`${id}-password`}>Password</FieldLabel>
               <InputGroup aria-invalid={fieldState.invalid}>
                 <InputGroupInput
                   {...field}
-                  id="password"
+                  id={`${id}-password`}
+                  maxLength={128}
                   name="password"
                   required
+                  spellCheck="false"
                   type={showPassword ? 'text' : 'password'}
                 />
                 <InputGroupAddon align="inline-end">
