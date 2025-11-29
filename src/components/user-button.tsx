@@ -8,7 +8,6 @@ import { useState } from 'react';
 
 import { signOut, useSession } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
-import { Text } from './typography';
 import { Button, type buttonVariants } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 
