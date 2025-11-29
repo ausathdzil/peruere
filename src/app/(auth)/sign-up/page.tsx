@@ -8,6 +8,7 @@ import { useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
+import { Muted, Title } from '@/components/typography';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -94,10 +95,10 @@ export default function SignUpPage() {
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="font-bold text-2xl">Create your account</h1>
-          <p className="text-balance text-muted-foreground text-sm">
+          <Title className="text-2xl">Create your account</Title>
+          <Muted className="text-balance">
             Fill in the form below to create your account
-          </p>
+          </Muted>
         </div>
         <Controller
           control={form.control}

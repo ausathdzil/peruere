@@ -60,20 +60,17 @@ export function UserButton({
   };
 
   return (
-    <div className={cn('flex items-center gap-4', className)} {...props}>
+    <div className={cn('flex items-center gap-2', className)} {...props}>
       {data?.user ? (
-        <>
-          <Text>Hey 👋, {data.user.name}!</Text>
-          <Button
-            disabled={loading}
-            onClick={handleSignOut}
-            size="pill-sm"
-            type="button"
-            variant="destructive"
-          >
-            Sign Out
-          </Button>
-        </>
+        <Button
+          disabled={loading}
+          onClick={handleSignOut}
+          size="pill-sm"
+          type="button"
+          variant="destructive"
+        >
+          Sign Out
+        </Button>
       ) : (
         navItems.map((item) => (
           <Button asChild key={item.href} size="pill-sm" variant={item.variant}>

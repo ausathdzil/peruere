@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import { M_PLUS_1 } from 'next/font/google';
+import localFont from 'next/font/local';
 
 import { cn } from '@/lib/utils';
 import './globals.css';
 
-const mPlusOne = M_PLUS_1({
-  variable: '--font-m-plus-one',
-  subsets: ['latin'],
+const inter = localFont({
+  src: './fonts/InterVariable.woff2',
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn(mPlusOne.variable, 'font-sans dark:antialiased')}>
+      <body className={cn(inter.variable, 'font-sans dark:antialiased')}>
         {children}
       </body>
     </html>
