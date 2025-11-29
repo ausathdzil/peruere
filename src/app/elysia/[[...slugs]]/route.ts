@@ -2,9 +2,9 @@ import openapi from '@elysiajs/openapi';
 import Elysia from 'elysia';
 
 import { auth } from '@/lib/auth';
-import { OpenAPI } from '../auth';
+import { OpenAPI } from './auth';
 
-const app = new Elysia({ prefix: '/api' })
+const app = new Elysia({ prefix: '/elysia' })
   .use(
     openapi({
       documentation: {
