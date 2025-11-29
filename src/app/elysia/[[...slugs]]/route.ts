@@ -13,9 +13,10 @@ const app = new Elysia({ prefix: '/elysia' })
       },
     }),
   )
-  .mount('/auth', auth.handler);
+  .mount('/auth', auth.handler)
+  .get('/', 'Hello, World!', { tags: ['Root'] });
 
-export type app = typeof app;
+export type App = typeof app;
 
 export const GET = app.handle;
 export const POST = app.handle;
