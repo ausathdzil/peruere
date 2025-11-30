@@ -40,13 +40,13 @@ const signUpFormSchema = z.object({
     .trim(),
   password: z
     .string()
-    .min(8, { error: 'Be at least 8 characters long' })
+    .min(8, { error: 'Password must be at least 8 characters long.' })
     .max(128, { error: 'Password must be 128 characters or fewer.' })
-    .regex(/[a-zA-Z]/, { error: 'Contain at least one letter.' })
-    .regex(/[0-9]/, { error: 'Contain at least one number.' })
-    .regex(/[^a-zA-Z0-9]/, {
-      error: 'Contain at least one special character.',
-    })
+    // .regex(/[a-zA-Z]/, { error: 'Contain at least one letter.' })
+    // .regex(/[0-9]/, { error: 'Contain at least one number.' })
+    // .regex(/[^a-zA-Z0-9]/, {
+    //   error: 'Contain at least one special character.',
+    // })
     .trim(),
 });
 
@@ -178,12 +178,7 @@ export default function SignUpPage() {
                   </InputGroupButton>
                 </InputGroupAddon>
               </InputGroup>
-              {fieldState.invalid && (
-                <>
-                  <FieldDescription>Password Must:</FieldDescription>
-                  <FieldError errors={[fieldState.error]} />
-                </>
-              )}
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
@@ -198,20 +193,16 @@ export default function SignUpPage() {
               'Create Account'
             )}
           </Button>
-        </Field>
-        <Field>
           <FieldDescription className="px-6 text-center">
             Already have an account? <Link href="/sign-in">Sign in</Link>
           </FieldDescription>
-        </Field>
-        {form.formState.errors.root && (
-          <Field>
+          {form.formState.errors.root && (
             <Alert variant="destructive">
               <AlertCircleIcon />
               <AlertTitle>{form.formState.errors.root.message}</AlertTitle>
             </Alert>
-          </Field>
-        )}
+          )}
+        </Field>
       </FieldGroup>
     </form>
   );

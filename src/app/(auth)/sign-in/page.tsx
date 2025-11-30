@@ -184,23 +184,19 @@ export default function SignInPage() {
               'Sign In'
             )}
           </Button>
-        </Field>
-        <Field>
           <FieldDescription className="text-center">
             Don&apos;t have an account?{' '}
             <Link className="underline underline-offset-4" href="/sign-up">
               Sign up
             </Link>
           </FieldDescription>
-        </Field>
-        {form.formState.errors.root && (
-          <Field>
+          {form.formState.errors.root && (
             <Alert variant="destructive">
               <AlertCircleIcon />
               <AlertTitle>{form.formState.errors.root.message}</AlertTitle>
             </Alert>
-          </Field>
-        )}
+          )}
+        </Field>
       </FieldGroup>
     </form>
   );
