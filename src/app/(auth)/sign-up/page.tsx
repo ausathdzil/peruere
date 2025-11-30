@@ -77,7 +77,7 @@ export default function SignUpPage() {
         setLoading(false);
       },
       onSuccess: () => {
-        router.push('/');
+        router.push('/profile');
       },
       onError: (ctx) => {
         form.setError('root', { message: ctx.error.message });
