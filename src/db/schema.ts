@@ -22,6 +22,8 @@ export const user = pgTable('user', {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  username: text('username').unique(),
+  displayUsername: text('display_username'),
 });
 
 export const session = pgTable(
@@ -83,25 +85,6 @@ export const verification = pgTable(
   (table) => [index('verification_identifier_idx').on(table.identifier)],
 );
 
-export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  accounts: many(account),
-}));
-
-export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user, {
-    fields: [session.userId],
-    references: [user.id],
-  }),
-}));
-
-export const accountRelations = relations(account, ({ one }) => ({
-  user: one(user, {
-    fields: [account.userId],
-    references: [user.id],
-  }),
-}));
-
 export const articleStatus = pgEnum('article_status', [
   'draft',
   'published',
@@ -136,3 +119,30 @@ export const articles = pgTable(
     index('article_excerpt_idx').on(table.excerpt),
   ],
 );
+
+export const userRelations = relations(user, ({ many }) => ({
+  sessions: many(session),
+  accounts: many(account),
+  articles: many(articles),
+}));
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+export const articleRelations = relations(articles, ({ one }) => ({
+  author: one(user, {
+    fields: [articles.authorId],
+    references: [user.id],
+  }),
+}));
