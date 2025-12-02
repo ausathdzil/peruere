@@ -9,7 +9,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
     Article: ArticleModel.articleResponse,
   })
   .get(
-    '/',
+    '',
     async () => {
       return await Article.getArticles();
     },
@@ -46,7 +46,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
     }
   })
   .post(
-    '/',
+    '',
     async ({ body }) => {
       return await Article.createArticle(body);
     },
