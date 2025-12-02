@@ -51,15 +51,39 @@ export abstract class Article {
     return (await db
       .select({
         publicId: articles.publicId,
-        status: articles.status,
-        coverImage: articles.coverImage,
-        createdAt: articles.createdAt,
-        updatedAt: articles.updatedAt,
         title: articles.title,
         slug: articles.slug,
         content: articles.content,
         excerpt: articles.excerpt,
+        status: articles.status,
+        coverImage: articles.coverImage,
+        createdAt: articles.createdAt,
+        updatedAt: articles.updatedAt,
       })
       .from(articles)) satisfies Array<ArticleModel.ArticleResponse>;
+  }
+
+  static async getArticle(publicId: string) {
+    const [article] = await db
+      .select({
+        publicId: articles.publicId,
+        title: articles.title,
+        slug: articles.slug,
+        content: articles.content,
+        excerpt: articles.excerpt,
+        status: articles.status,
+        coverImage: articles.coverImage,
+        createdAt: articles.createdAt,
+        updatedAt: articles.updatedAt,
+      })
+      .from(articles)
+      .where(eq(articles.publicId, publicId))
+      .limit(1);
+
+    if (!article) {
+      throw new NotFoundError('Article not found');
+    }
+
+    return article satisfies ArticleModel.ArticleResponse;
   }
 }

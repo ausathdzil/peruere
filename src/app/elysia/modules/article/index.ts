@@ -23,10 +23,26 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
     switch (code) {
       case 'NOT_FOUND':
         return status(404, { message: error.message });
+    }
+  })
+  .get(
+    '/:publicId',
+    async ({ params: { publicId } }) => {
+      return await Article.getArticle(publicId);
+    },
+    {
+      response: {
+        200: 'Article',
+        404: ArticleModel.articleInvalid,
+      },
+    },
+  )
+  .onError(({ code, status, error }) => {
+    switch (code) {
+      case 'NOT_FOUND':
+        return status(404, { message: error.message });
       case 'VALIDATION':
         return status(422, { message: error.message });
-      case 'INTERNAL_SERVER_ERROR':
-        return status(500, { message: error.message });
     }
   })
   .post(
@@ -40,7 +56,6 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
         201: 'Article',
         404: ArticleModel.articleInvalid,
         422: ArticleModel.articleInvalid,
-        500: ArticleModel.articleInvalid,
       },
     },
   );
