@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 const authRoutes = ['/sign-in', '/sign-up'];
 const protectedRoutes = ['/profile'];
 
-export default async function proxy(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.includes(path);
   const isAuthRoute = authRoutes.includes(path);

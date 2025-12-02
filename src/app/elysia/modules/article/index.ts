@@ -1,8 +1,13 @@
-import Elysia from 'elysia';
+import Elysia, { t } from 'elysia';
+
+import { Ref } from '../utils';
 import { ArticleModel } from './model';
 import { Article } from './service';
 
 export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
+  .model({
+    Article: ArticleModel.articleResponse,
+  })
   .get(
     '/',
     async () => {
@@ -10,7 +15,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
     },
     {
       response: {
-        200: ArticleModel.getArticlesResponse,
+        200: t.Array(Ref(ArticleModel.articleResponse)),
       },
     },
   )
@@ -32,10 +37,10 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
     {
       body: ArticleModel.createArticleBody,
       response: {
-        201: ArticleModel.createArticleResponse,
-        404: ArticleModel.createArticleInvalid,
-        422: ArticleModel.createArticleInvalid,
-        500: ArticleModel.createArticleInvalid,
+        201: 'Article',
+        404: ArticleModel.articleInvalid,
+        422: ArticleModel.articleInvalid,
+        500: ArticleModel.articleInvalid,
       },
     },
   );

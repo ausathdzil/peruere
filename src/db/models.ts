@@ -7,7 +7,7 @@ import { spreads } from './utils';
 export const db = {
   insert: spreads(
     {
-      articles: createInsertSchema(articles, {
+      createArticle: createInsertSchema(articles, {
         title: t.String({
           minLength: 1,
           maxLength: 255,
@@ -15,9 +15,9 @@ export const db = {
         }),
         content: t.String({ minLength: 1, error: 'Content is required' }),
         status: t.UnionEnum(['draft', 'published', 'archived'], {
-          error: 'Status must be draft, published, or archived',
+          error: 'Status must be either draft, published, or archived',
         }),
-        authorId: t.String({ minLength: 1, error: 'Author is required' }),
+        authorId: t.String({ minLength: 1, error: 'Author id is required' }),
       }),
     },
     'insert',

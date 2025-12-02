@@ -1,8 +1,9 @@
 import { openapi } from '@elysiajs/openapi';
 import Elysia from 'elysia';
 
-import { auth } from '@/lib/auth';
 import { article } from '../modules/article';
+import { auth } from '../modules/auth';
+import { BetterAuthOpenAPI } from '../modules/utils';
 
 const app = new Elysia({ prefix: '/elysia' })
   .use(
@@ -12,12 +13,13 @@ const app = new Elysia({ prefix: '/elysia' })
           title: 'Peruere API',
           version: '1.0.0',
         },
+        components: await BetterAuthOpenAPI.components,
+        paths: await BetterAuthOpenAPI.getPaths(),
       },
     }),
   )
   .use(article)
-  .mount('/auth', auth.handler)
-  .get('/', 'Hello, World!', { tags: ['Root'] });
+  .use(auth);
 
 export type App = typeof app;
 

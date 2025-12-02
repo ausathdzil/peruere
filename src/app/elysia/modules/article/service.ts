@@ -44,7 +44,7 @@ export abstract class Article {
       coverImage: article.coverImage,
       createdAt: article.createdAt,
       updatedAt: article.updatedAt,
-    } satisfies ArticleModel.CreateArticleResponse;
+    } satisfies ArticleModel.ArticleResponse;
   }
 
   static async getArticles() {
@@ -60,6 +60,6 @@ export abstract class Article {
         content: articles.content,
         excerpt: articles.excerpt,
       })
-      .from(articles)) satisfies ArticleModel.GetArticlesResponse;
+      .from(articles)) satisfies Array<ArticleModel.ArticleResponse>;
   }
 }
