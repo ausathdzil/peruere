@@ -3,6 +3,7 @@ import Elysia from 'elysia';
 
 import { article } from '../modules/article';
 import { auth } from '../modules/auth';
+import { author } from '../modules/author';
 import { BetterAuthOpenAPI } from '../modules/utils';
 
 const app = new Elysia({ prefix: '/elysia' })
@@ -19,6 +20,7 @@ const app = new Elysia({ prefix: '/elysia' })
     }),
   )
   .use(article)
+  .use(author)
   .use(auth);
 
 export type App = typeof app;

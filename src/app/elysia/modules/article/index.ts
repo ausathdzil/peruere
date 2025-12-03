@@ -8,6 +8,28 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .model({
     Article: ArticleModel.articleResponse,
   })
+  .onError(({ code, status, error }) => {
+    switch (code) {
+      case 'NOT_FOUND':
+        return status(404, { message: error.message });
+      case 'VALIDATION':
+        return status(422, { message: error.message });
+    }
+  })
+  .post(
+    '',
+    async ({ body }) => {
+      return await Article.createArticle(body);
+    },
+    {
+      body: ArticleModel.createArticleBody,
+      response: {
+        201: 'Article',
+        404: ArticleModel.articleInvalid,
+        422: ArticleModel.articleInvalid,
+      },
+    },
+  )
   .get(
     '',
     async () => {
@@ -34,28 +56,6 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
       response: {
         200: 'Article',
         404: ArticleModel.articleInvalid,
-      },
-    },
-  )
-  .onError(({ code, status, error }) => {
-    switch (code) {
-      case 'NOT_FOUND':
-        return status(404, { message: error.message });
-      case 'VALIDATION':
-        return status(422, { message: error.message });
-    }
-  })
-  .post(
-    '',
-    async ({ body }) => {
-      return await Article.createArticle(body);
-    },
-    {
-      body: ArticleModel.createArticleBody,
-      response: {
-        201: 'Article',
-        404: ArticleModel.articleInvalid,
-        422: ArticleModel.articleInvalid,
       },
     },
   );

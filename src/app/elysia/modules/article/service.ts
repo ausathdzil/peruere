@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/complexity/noStaticOnlyClass: Elysia Service */
 import { eq } from 'drizzle-orm';
 import { NotFoundError } from 'elysia';
 
