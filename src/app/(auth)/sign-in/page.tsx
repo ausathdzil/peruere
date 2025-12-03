@@ -170,20 +170,11 @@ export default function SignInPage() {
         />
         <Field>
           <Button disabled={loading} type="submit">
-            {loading ? (
-              <>
-                <Spinner />
-                Signing In…
-              </>
-            ) : (
-              'Sign In'
-            )}
+            {loading && <Spinner />}
+            Sign In
           </Button>
           <FieldDescription className="text-center">
-            Don&apos;t have an account?{' '}
-            <Link className="underline underline-offset-4" href="/sign-up">
-              Sign up
-            </Link>
+            Don&apos;t have an account? <Link href="/sign-up">Sign up</Link>
           </FieldDescription>
           {form.formState.errors.root && (
             <Alert variant="destructive">

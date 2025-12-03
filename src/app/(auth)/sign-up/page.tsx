@@ -265,14 +265,8 @@ export default function SignUpPage() {
         />
         <Field>
           <Button disabled={loading} type="submit">
-            {loading ? (
-              <>
-                <Spinner />
-                Creating Account…
-              </>
-            ) : (
-              'Create Account'
-            )}
+            {loading && <Spinner />}
+            Create Account
           </Button>
           <FieldDescription className="text-center">
             Already have an account? <Link href="/sign-in">Sign in</Link>

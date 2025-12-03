@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 
 import { cn } from '@/lib/utils';
@@ -13,6 +13,10 @@ const inter = localFont({
 export const metadata: Metadata = {
   title: 'Peruere',
   description: 'A new world to share your thoughts.',
+};
+
+export const viewport: Viewport = {
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
