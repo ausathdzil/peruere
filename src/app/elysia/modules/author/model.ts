@@ -1,4 +1,5 @@
 import { t } from 'elysia';
+
 import { db } from '@/db/models';
 
 export namespace AuthorModel {
