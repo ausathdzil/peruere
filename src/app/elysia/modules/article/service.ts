@@ -162,6 +162,13 @@ export abstract class Article {
     return updatedData satisfies ArticleModel.ArticleResponse;
   }
 
+  static async deleteArticle(publicId: string) {
+    await Article.getArticleByPublicId(publicId);
+    await db.delete(articles).where(eq(articles.publicId, publicId));
+
+    return { message: 'Article deleted successfully' };
+  }
+
   static async generateArticleSlug(title: string) {
     const base = slugify(title);
 

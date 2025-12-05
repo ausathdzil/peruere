@@ -74,4 +74,18 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
         404: ArticleModel.articleInvalid,
       },
     },
+  )
+  .delete(
+    '/:publicId',
+    async ({ params: { publicId } }) => {
+      return await Article.deleteArticle(publicId);
+    },
+    {
+      auth: true,
+      response: {
+        200: t.Object({ message: t.String() }),
+        401: ArticleModel.articleInvalid,
+        404: ArticleModel.articleInvalid,
+      },
+    },
   );
