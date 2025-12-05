@@ -1,31 +1,32 @@
 import Elysia, { t } from 'elysia';
 
+import { auth } from '../auth';
 import { Ref } from '../utils';
 import { ArticleModel } from './model';
 import { Article } from './service';
 
 export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
+  .use(auth)
   .model({
     Article: ArticleModel.articleResponse,
   })
   .onError(({ code, status, error }) => {
     switch (code) {
-      case 'NOT_FOUND':
-        return status(404, { message: error.message });
       case 'VALIDATION':
         return status(422, { message: error.message });
     }
   })
   .post(
     '',
-    async ({ body }) => {
-      return await Article.createArticle(body);
+    async ({ body, user }) => {
+      return await Article.createArticle(body, user.id);
     },
     {
+      auth: true,
       body: ArticleModel.createArticleBody,
       response: {
         201: 'Article',
-        404: ArticleModel.articleInvalid,
+        401: ArticleModel.articleInvalid,
         422: ArticleModel.articleInvalid,
       },
     },
@@ -50,11 +51,26 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .get(
     '/:slug',
     async ({ params: { slug } }) => {
-      return await Article.getArticle(slug);
+      return await Article.getArticleBySlug(slug);
     },
     {
       response: {
         200: 'Article',
+        404: ArticleModel.articleInvalid,
+      },
+    },
+  )
+  .patch(
+    '/:publicId',
+    async ({ params: { publicId }, body }) => {
+      return await Article.updateArticle(publicId, body);
+    },
+    {
+      auth: true,
+      body: t.Omit(ArticleModel.updateArticleBody, ['slug', 'excerpt']),
+      response: {
+        200: 'Article',
+        401: ArticleModel.articleInvalid,
         404: ArticleModel.articleInvalid,
       },
     },

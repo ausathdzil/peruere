@@ -19,11 +19,12 @@ const app = new Elysia({ prefix: '/elysia' })
       },
     }),
   )
+  .use(auth)
   .use(article)
-  .use(author)
-  .use(auth);
+  .use(author);
 
 export type App = typeof app;
 
 export const GET = app.fetch;
 export const POST = app.fetch;
+export const PATCH = app.fetch;

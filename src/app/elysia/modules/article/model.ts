@@ -5,13 +5,13 @@ import { db } from '@/db/models';
 export namespace ArticleModel {
   const { articles } = db.select;
   const { createArticle } = db.insert;
+  const { updateArticle } = db.update;
 
   export const createArticleBody = t.Object({
     title: createArticle.title,
     content: createArticle.content,
     status: createArticle.status,
     coverImage: createArticle.coverImage,
-    authorId: createArticle.authorId,
   });
 
   export type CreateArticleBody = typeof createArticleBody.static;
@@ -29,6 +29,17 @@ export namespace ArticleModel {
   });
 
   export type ArticleResponse = typeof articleResponse.static;
+
+  export const updateArticleBody = t.Object({
+    title: updateArticle.title,
+    slug: updateArticle.slug,
+    content: updateArticle.content,
+    excerpt: updateArticle.excerpt,
+    status: updateArticle.status,
+    coverImage: updateArticle.coverImage,
+  });
+
+  export type UpdateArticleBody = typeof updateArticleBody.static;
 
   export const articleInvalid = t.Object({ message: t.String() });
 

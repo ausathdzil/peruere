@@ -12,11 +12,12 @@ import {
   type BuildSchema,
   createInsertSchema,
   createSelectSchema,
+  createUpdateSchema,
 } from 'drizzle-typebox';
 
 type Spread<
   T extends TObject | Table,
-  Mode extends 'select' | 'insert' | undefined,
+  Mode extends 'select' | 'insert' | 'update' | undefined,
 > = T extends TObject<infer Fields>
   ? {
       [K in keyof Fields]: Fields[K];
@@ -26,7 +27,9 @@ type Spread<
       ? BuildSchema<'select', T['_']['columns'], undefined>['properties']
       : Mode extends 'insert'
         ? BuildSchema<'insert', T['_']['columns'], undefined>['properties']
-        : {}
+        : Mode extends 'update'
+          ? BuildSchema<'update', T['_']['columns'], undefined>['properties']
+          : {}
     : {};
 
 /**
@@ -34,7 +37,7 @@ type Spread<
  */
 export const spread = <
   T extends TObject | Table,
-  Mode extends 'select' | 'insert' | undefined,
+  Mode extends 'select' | 'insert' | 'update' | undefined,
 >(
   schema: T,
   mode?: Mode,
@@ -45,6 +48,7 @@ export const spread = <
   switch (mode) {
     case 'insert':
     case 'select':
+    case 'update':
       if (Kind in schema) {
         table = schema;
         break;
@@ -53,7 +57,9 @@ export const spread = <
       table =
         mode === 'insert'
           ? createInsertSchema(schema)
-          : createSelectSchema(schema);
+          : mode === 'update'
+            ? createUpdateSchema(schema)
+            : createSelectSchema(schema);
 
       break;
 
@@ -77,7 +83,7 @@ export const spread = <
  */
 export const spreads = <
   T extends Record<string, TObject | Table>,
-  Mode extends 'select' | 'insert' | undefined,
+  Mode extends 'select' | 'insert' | 'update' | undefined,
 >(
   models: T,
   mode?: Mode,
