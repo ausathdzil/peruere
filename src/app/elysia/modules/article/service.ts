@@ -4,6 +4,7 @@ import { NotFoundError } from 'elysia';
 import { db } from '@/db';
 import { articles, user } from '@/db/schema';
 import { slugify } from '@/lib/utils';
+import { AuthError } from '../auth';
 import type { ArticleModel } from './model';
 
 export abstract class Article {
@@ -22,7 +23,7 @@ export abstract class Article {
       .values({
         title: title.trim(),
         slug: await Article.generateArticleSlug(title),
-        content: title.trim(),
+        content: content.trim(),
         excerpt: content.substring(0, 255),
         status,
         coverImage,
@@ -116,8 +117,13 @@ export abstract class Article {
       status: articleStatus,
       coverImage,
     }: ArticleModel.UpdateArticleBody,
+    userId: string,
   ) {
     const article = await Article.getArticleByPublicId(publicId);
+
+    if (article.authorId !== userId) {
+      throw new AuthError('You are not allowed to modify this article');
+    }
 
     const payload: Partial<ArticleModel.UpdateArticleBody> = {};
 
@@ -162,8 +168,13 @@ export abstract class Article {
     return updatedData satisfies ArticleModel.ArticleResponse;
   }
 
-  static async deleteArticle(publicId: string) {
-    await Article.getArticleByPublicId(publicId);
+  static async deleteArticle(publicId: string, userId: string) {
+    const article = await Article.getArticleByPublicId(publicId);
+
+    if (article.authorId !== userId) {
+      throw new AuthError('You are not allowed to delete this article');
+    }
+
     await db.delete(articles).where(eq(articles.publicId, publicId));
 
     return { message: 'Article deleted successfully' };

@@ -1,6 +1,6 @@
 import Elysia, { t } from 'elysia';
 
-import { auth } from '../auth';
+import { AuthError, auth } from '../auth';
 import { Ref } from '../utils';
 import { ArticleModel } from './model';
 import { Article } from './service';
@@ -60,10 +60,19 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
       },
     },
   )
+  .error({
+    AuthError,
+  })
+  .onError(({ code, status, error }) => {
+    switch (code) {
+      case 'AuthError':
+        return status(error.status, { message: error.message });
+    }
+  })
   .patch(
     '/:publicId',
-    async ({ params: { publicId }, body }) => {
-      return await Article.updateArticle(publicId, body);
+    async ({ params: { publicId }, body, user }) => {
+      return await Article.updateArticle(publicId, body, user.id);
     },
     {
       auth: true,
@@ -77,8 +86,8 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   )
   .delete(
     '/:publicId',
-    async ({ params: { publicId } }) => {
-      return await Article.deleteArticle(publicId);
+    async ({ params: { publicId }, user }) => {
+      return await Article.deleteArticle(publicId, user.id);
     },
     {
       auth: true,
