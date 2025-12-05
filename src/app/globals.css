@@ -218,12 +218,4 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-
-  a {
-    -webkit-tap-highlight-color: rgba(239, 67, 67, 0.5);
-
-    @supports (color: lab(0% 0 0)) {
-      -webkit-tap-highlight-color: oklch(0.6356 0.2082 25.3782 / 50%);
-    }
-  }
 }

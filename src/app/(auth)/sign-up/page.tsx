@@ -2,11 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import * as z from 'zod';
+import * as z from 'zod/mini';
 
 import { Muted, Title } from '@/components/typography';
 import { Alert, AlertTitle } from '@/components/ui/alert';
@@ -29,44 +30,54 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth-client';
 
+export const metadata: Metadata = {
+  title: 'Sign Up',
+};
+
 const signUpFormSchema = z.object({
   name: z
     .string()
-    .min(3, { error: 'Name must be at least 3 characters long.' })
-    .max(30, { error: 'Name must be 30 characters or fewer.' })
-    .trim(),
+    .check(
+      z.minLength(3, 'Name must be at least 3 characters long.'),
+      z.maxLength(30, 'Name must be 30 characters or fewer.'),
+      z.trim(),
+    ),
   username: z
     .string()
-    .min(3, { error: 'Username must be at least 3 characters long.' })
-    .max(30, { error: 'Username must be 30 characters or fewer.' })
-    .regex(/^[a-zA-Z0-9._]+$/, {
-      error:
+    .check(
+      z.minLength(3, 'Username must be at least 3 characters long.'),
+      z.maxLength(30, 'Username must be 30 characters or fewer.'),
+      z.regex(
+        /^[a-zA-Z0-9._]+$/,
         'Username can only contain letters, numbers, underscores, and dots.',
-    })
-    .regex(/^[^0-9].*$/, {
-      error: 'Username cannot start with a number.',
-    })
-    .regex(/^(?!\.)(?!.*\.$).+$/, {
-      error: 'Username cannot start or end with a dot.',
-    })
-    .regex(/^(?!.*\.\.).*$/, {
-      error: 'Username cannot contain consecutive dots.',
-    })
-    .trim(),
+      ),
+      z.regex(/^[^0-9].*$/, 'Username cannot start with a number.'),
+      z.regex(
+        /^(?!\.)(?!.*\.$).+$/,
+        'Username cannot start or end with a dot.',
+      ),
+      z.regex(/^(?!.*\.\.).*$/, 'Username cannot contain consecutive dots.'),
+      z.trim(),
+    ),
   email: z
-    .email({ error: 'Please enter a valid email.' })
-    .max(255, { error: 'Email must be 255 characters or fewer.' })
-    .trim(),
+    .email('Please enter a valid email.')
+    .check(
+      z.maxLength(255, 'Email must be 255 characters or fewer.'),
+      z.trim(),
+    ),
   password: z
     .string()
-    .min(8, { error: 'Password must be at least 8 characters long.' })
-    .max(128, { error: 'Password must be 128 characters or fewer.' })
-    .regex(/[a-zA-Z]/, { error: 'Password must contain at least one letter.' })
-    .regex(/[0-9]/, { error: 'Password must contain at least one number.' })
-    .regex(/[^a-zA-Z0-9]/, {
-      error: 'Password must contain at least one special character.',
-    })
-    .trim(),
+    .check(
+      z.minLength(8, 'Password must be at least 8 characters long.'),
+      z.maxLength(128, 'Password must be 128 characters or fewer.'),
+      z.regex(/[a-zA-Z]/, 'Password must contain at least one letter.'),
+      z.regex(/[0-9]/, 'Password must contain at least one number.'),
+      z.regex(
+        /[^a-zA-Z0-9]/,
+        'Password must contain at least one special character.',
+      ),
+      z.trim(),
+    ),
 });
 
 type SignUpFieldValues = z.infer<typeof signUpFormSchema>;

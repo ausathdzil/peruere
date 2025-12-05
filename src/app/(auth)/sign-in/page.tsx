@@ -2,11 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import * as z from 'zod';
+import * as z from 'zod/mini';
 
 import { Muted, Title } from '@/components/typography';
 import { Alert, AlertTitle } from '@/components/ui/alert';
@@ -29,16 +30,24 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth-client';
 
+export const metadata: Metadata = {
+  title: 'Sign In',
+};
+
 const signInFormSchema = z.object({
   email: z
-    .email({ error: 'Please enter a valid email.' })
-    .max(255, { error: 'Email must be 255 characters or fewer.' })
-    .trim(),
+    .email('Please enter a valid email.')
+    .check(
+      z.maxLength(255, 'Email must be 255 characters or fewer.'),
+      z.trim(),
+    ),
   password: z
     .string()
-    .min(1, { error: 'Password is required.' })
-    .max(128, { error: 'Password must be 128 characters or fewer.' })
-    .trim(),
+    .check(
+      z.minLength(1, 'Password is required.'),
+      z.maxLength(128, 'Password must be 128 characters or fewer.'),
+      z.trim(),
+    ),
   rememberMe: z.optional(z.boolean()),
 });
 

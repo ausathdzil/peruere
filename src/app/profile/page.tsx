@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { unauthorized } from 'next/navigation';
 import { Suspense } from 'react';
@@ -5,6 +6,10 @@ import { Suspense } from 'react';
 import { SignOutButton } from '@/components/sign-out-button';
 import { Lead } from '@/components/typography';
 import { auth } from '@/lib/auth';
+
+export const metadata: Metadata = {
+  title: 'Profile',
+};
 
 export default function ProfilePage() {
   return (

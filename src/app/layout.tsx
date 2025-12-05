@@ -11,12 +11,19 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Peruere',
+  title: {
+    default: 'Peruere',
+    template: '%s | Peruere',
+  },
   description: 'A new world to share your thoughts.',
+  appleWebApp: {
+    statusBarStyle: 'black-translucent',
+  },
 };
 
 export const viewport: Viewport = {
   viewportFit: 'cover',
+  maximumScale: 1,
 };
 
 export default function RootLayout({
