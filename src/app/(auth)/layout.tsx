@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: LayoutProps<'/'>) {
           </Button>
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">{children}</div>
+          {children}
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block" />

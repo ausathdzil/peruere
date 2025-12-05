@@ -1,30 +1,18 @@
-import Link from 'next/link';
-
-import { Button } from '@/components/ui/button';
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from '@/components/ui/empty';
+import { Muted, Title } from '@/components/typography';
+import { SignInForm } from './(auth)/sign-in/sign-in-form';
 
 export default function Unauthorized() {
   return (
     <main className="grid min-h-screen place-items-center">
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle>401 - Unauthorized</EmptyTitle>
-          <EmptyDescription>
+      <div className="w-full max-w-xs space-y-6">
+        <div className="flex flex-col items-center gap-1 text-center">
+          <Title className="text-2xl">401 - Unauthorized</Title>
+          <Muted className="text-balance">
             Please sign in to access this page.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button asChild size="pill">
-            <Link href="/sign-in">Sign In</Link>
-          </Button>
-        </EmptyContent>
-      </Empty>
+          </Muted>
+        </div>
+        <SignInForm />
+      </div>
     </main>
   );
 }

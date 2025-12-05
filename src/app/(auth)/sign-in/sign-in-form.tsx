@@ -8,7 +8,6 @@ import { useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod/mini';
 
-import { Muted, Title } from '@/components/typography';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,6 +27,7 @@ import {
 } from '@/components/ui/input-group';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth-client';
+import { cn } from '@/lib/utils';
 
 const signInFormSchema = z.object({
   email: z
@@ -48,7 +48,10 @@ const signInFormSchema = z.object({
 
 type SignInFieldValues = z.infer<typeof signInFormSchema>;
 
-export function SignInForm() {
+export function SignInForm({
+  className,
+  ...props
+}: React.ComponentProps<'form'>) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const id = useId();
@@ -91,16 +94,11 @@ export function SignInForm() {
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className={cn('flex flex-col gap-6', className)}
       onSubmit={form.handleSubmit(handleSubmit)}
+      {...props}
     >
       <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <Title className="text-2xl">Login to your account</Title>
-          <Muted className="text-balance">
-            Enter your email below to login to your account
-          </Muted>
-        </div>
         <Controller
           control={form.control}
           name="email"
