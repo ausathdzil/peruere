@@ -18,22 +18,23 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
+  InputGroupText,
 } from '@/components/ui/input-group';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 
 const signInFormSchema = z.object({
-  email: z
-    .email('Please enter a valid email.')
+  username: z
+    .string()
     .check(
-      z.maxLength(255, 'Email must be 255 characters or fewer.'),
+      z.minLength(1, 'Username is required.'),
+      z.maxLength(30, 'Username must be 30 characters or fewer.'),
       z.trim(),
     ),
   password: z
@@ -58,7 +59,7 @@ export function SignInForm({
   const form = useForm<SignInFieldValues>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
       rememberMe: false,
     },
@@ -69,7 +70,7 @@ export function SignInForm({
   const handleSubmit = async (values: SignInFieldValues) => {
     const key = crypto.randomUUID();
 
-    await authClient.signIn.email(values, {
+    await authClient.signIn.username(values, {
       onRequest: () => {
         setLoading(true);
       },
@@ -77,7 +78,7 @@ export function SignInForm({
         setLoading(false);
       },
       onSuccess: () => {
-        router.push('/profile');
+        router.push(`/profile/${values.username}`);
       },
       onError: (ctx) => {
         form.setError('root', {
@@ -100,22 +101,29 @@ export function SignInForm({
       <FieldGroup>
         <Controller
           control={form.control}
-          name="email"
+          name="username"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={`${id}-email`}>Email</FieldLabel>
-              <Input
-                {...field}
-                aria-invalid={fieldState.invalid}
-                autoComplete="email"
-                id={`${id}-email`}
-                maxLength={255}
-                name="email"
-                placeholder="m@example.com"
-                required
-                spellCheck="false"
-                type="email"
-              />
+              <FieldLabel htmlFor={`${id}-username`}>Username</FieldLabel>
+              <InputGroup>
+                <InputGroupAddon>
+                  <InputGroupText>@</InputGroupText>
+                </InputGroupAddon>
+                <InputGroupInput
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  autoCapitalize="off"
+                  autoComplete="username"
+                  autoCorrect="off"
+                  id={`${id}-username`}
+                  maxLength={30}
+                  name="username"
+                  placeholder="alice"
+                  required
+                  spellCheck="false"
+                  type="text"
+                />
+              </InputGroup>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

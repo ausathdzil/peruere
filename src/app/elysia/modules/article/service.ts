@@ -57,7 +57,10 @@ export abstract class Article {
         createdAt: articles.createdAt,
         updatedAt: articles.updatedAt,
       })
-      .from(articles)) satisfies Array<ArticleModel.ArticleResponse>;
+      .from(articles)
+      .where(
+        eq(articles.status, 'published'),
+      )) satisfies Array<ArticleModel.ArticleResponse>;
   }
 
   static async getArticleBySlug(slug: string) {

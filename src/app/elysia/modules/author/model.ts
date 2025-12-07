@@ -9,6 +9,7 @@ export namespace AuthorModel {
     name: authors.name,
     image: authors.image,
     createdAt: authors.createdAt,
+    username: authors.username,
     displayUsername: authors.displayUsername,
   });
 

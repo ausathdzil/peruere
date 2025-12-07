@@ -6,7 +6,7 @@ import { ContentEditor } from './content-editor';
 
 export default function ArticlePage({
   params,
-}: PageProps<'/profile/articles/[publicId]'>) {
+}: PageProps<'/profile/[username]/articles/[publicId]'>) {
   return (
     <main className="grid min-h-screen pt-safe-top">
       <Suspense fallback={null}>

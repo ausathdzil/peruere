@@ -2,7 +2,7 @@ import { HouseIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
-import { unauthorized } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { Lead } from '@/components/typography';
@@ -21,15 +21,29 @@ import { elysia } from '@/lib/eden';
 import { CreateArticleButton } from './create-article-button';
 import { SignOutButton } from './sign-out-button';
 
-export const metadata: Metadata = {
-  title: 'Profile',
-};
+export async function generateMetadata({
+  params,
+}: PageProps<'/profile/[username]'>): Promise<Metadata> {
+  const { username } = await params;
 
-export default function ProfilePage() {
+  const { data: author, error } = await elysia
+    .authors({ handle: username })
+    .get();
+
+  if (error?.status === 404 || !author) {
+    return {};
+  }
+
+  return { title: author.name };
+}
+
+export default function ProfilePage({
+  params,
+}: PageProps<'/profile/[username]'>) {
   return (
     <main className="grid min-h-screen grid-rows-[1fr_auto] gap-4 pt-safe-top">
       <Suspense fallback={<ProfileSkeleton />}>
-        <ProfileInfo />
+        <ProfileInfo params={params} />
       </Suspense>
       <div className="place-self-center p-8">
         <SignOutButton />
@@ -38,23 +52,32 @@ export default function ProfilePage() {
   );
 }
 
-async function ProfileInfo() {
+async function ProfileInfo({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
+  const { username } = await params;
+  const { data: author, error } = await elysia
+    .authors({ handle: username })
+    .get();
+
+  if (error?.status === 404 || !author) {
+    notFound();
+  }
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  if (!session) {
-    unauthorized();
-  }
-
   const { data: articles } = await elysia
-    .authors({ handle: session.user.username ?? '' })
+    .authors({ handle: author.username ?? '' })
     .articles.get();
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 p-8">
       <div className="grid w-full grid-cols-[1fr_auto] items-center gap-4 px-4">
-        <Lead>{session.user.name}</Lead>
+        <Lead>{author.name}</Lead>
         <div className="flex items-center gap-2">
           <Button asChild size="sm" variant="ghost">
             <Link href="/">
@@ -62,7 +85,9 @@ async function ProfileInfo() {
               Home
             </Link>
           </Button>
-          <CreateArticleButton />
+          {session?.user.username === author.username && (
+            <CreateArticleButton username={session.user.username} />
+          )}
         </div>
       </div>
       {articles?.length === 0 ? (
@@ -94,7 +119,7 @@ async function ProfileInfo() {
 function ProfileSkeleton() {
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 p-8">
-      <div className="grid w-full grid-cols-[1fr_auto] items-center gap-4 px-4">
+      <div className="w-full px-4">
         <Skeleton className="h-7 w-full" />
       </div>
       <div className="flex w-full flex-col gap-4 px-4">

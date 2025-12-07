@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { NotFoundError } from 'elysia';
 
 import { db } from '@/db';
@@ -13,6 +13,7 @@ export abstract class Author {
         name: user.name,
         image: user.image,
         createdAt: user.createdAt,
+        username: user.username,
         displayUsername: user.displayUsername,
       })
       .from(user)) satisfies Array<AuthorModel.AuthorResponse>;
@@ -25,6 +26,7 @@ export abstract class Author {
         name: user.name,
         image: user.image,
         createdAt: user.createdAt,
+        username: user.username,
         displayUsername: user.displayUsername,
       })
       .from(user)
@@ -55,7 +57,7 @@ export abstract class Author {
       })
       .from(articles)
       .where(
-        eq(articles.authorId, author.id),
+        and(eq(articles.authorId, author.id), eq(articles.status, 'published')),
       )) satisfies Array<ArticleModel.ArticleResponse>;
   }
 }

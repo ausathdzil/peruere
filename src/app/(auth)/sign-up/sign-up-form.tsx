@@ -133,7 +133,7 @@ export function SignUpForm() {
         setLoading(false);
       },
       onSuccess: () => {
-        router.push('/profile');
+        router.push(`/profile/${values.username}`);
       },
       onError: (ctx) => {
         form.setError('root', {

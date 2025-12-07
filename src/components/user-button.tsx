@@ -37,7 +37,7 @@ export async function UserButton({
     <div className={cn('flex items-center gap-4', className)} {...props}>
       {session?.user ? (
         <Button asChild size="pill-sm" variant="secondary">
-          <Link href="/profile">Profile</Link>
+          <Link href={`/profile/${session.user.username}`}>Profile</Link>
         </Button>
       ) : (
         navItems.map((item) => (

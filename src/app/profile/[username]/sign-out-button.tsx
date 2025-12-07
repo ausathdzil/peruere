@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth-client';
 
 export function SignOutButton(props: React.ComponentProps<typeof Button>) {
@@ -40,6 +41,7 @@ export function SignOutButton(props: React.ComponentProps<typeof Button>) {
       variant="destructive"
       {...props}
     >
+      {loading && <Spinner />}
       Sign Out
     </Button>
   );
