@@ -93,9 +93,9 @@ export function SignUpForm() {
   const router = useRouter();
 
   const handleSubmit = async (values: SignUpFieldValues) => {
-    const { data: response } = await authClient.isUsernameAvailable({
-      username: values.username,
-      fetchOptions: {
+    const { data: response } = await authClient.isUsernameAvailable(
+      { username: values.username },
+      {
         onRequest: () => {
           setLoading(true);
         },
@@ -109,9 +109,9 @@ export function SignUpForm() {
           });
         },
       },
-    });
+    );
 
-    if (response?.available === false) {
+    if (!response?.available) {
       form.setFocus('username');
       form.setError('username', {
         type: 'manual',
@@ -131,10 +131,18 @@ export function SignUpForm() {
         router.push(`/u/${values.username}`);
       },
       onError: (ctx) => {
-        form.setError('root', {
-          type: 'manual',
-          message: ctx.error.message || 'An unexpected error occurred',
-        });
+        if (ctx.error.code === 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL') {
+          form.setFocus('email');
+          form.setError('email', {
+            type: 'manual',
+            message: ctx.error.message,
+          });
+        } else {
+          form.setError('root', {
+            type: 'manual',
+            message: ctx.error.message || 'An unexpected error occurred',
+          });
+        }
       },
     });
   };
