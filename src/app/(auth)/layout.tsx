@@ -22,13 +22,7 @@ export default async function AuthLayout({ children }: LayoutProps<'/'>) {
         <div className="flex justify-center gap-2 md:justify-start">
           <Button asChild size="sm" variant="ghost">
             <Link href="/">
-              <Image
-                alt="Peruere"
-                height={16}
-                placeholder="blur"
-                src={pereure}
-                width={16}
-              />
+              <Image alt="Peruere" height={16} src={pereure} width={16} />
               Peruere
             </Link>
           </Button>
