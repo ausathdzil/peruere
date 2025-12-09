@@ -48,7 +48,7 @@ export abstract class Article {
     status,
     authorId,
     username,
-    search,
+    q,
   }: ArticleModel.ArticlesQuery) {
     return (await db
       .select({
@@ -76,9 +76,7 @@ export abstract class Article {
           eq(articles.status, status ?? 'published'),
           authorId ? eq(articles.authorId, authorId) : undefined,
           username ? eq(user.username, username) : undefined,
-          search
-            ? ilike(articles.title, `%${search.toLowerCase()}%`)
-            : undefined,
+          q ? ilike(articles.title, `%${q.toLowerCase()}%`) : undefined,
         ),
       )) satisfies Array<ArticleModel.ArticleResponse>;
   }

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 
+import { SearchInput } from '@/components/search-input';
 import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import {
   Item,
@@ -10,26 +11,32 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getArticles } from './_lib/data';
+import { getArticles } from '../_lib/data';
 
-export default function Home() {
+export default function ExplorePage({ searchParams }: PageProps<'/explore'>) {
   return (
-    <main className="mx-auto grid w-full max-w-4xl flex-1 p-4">
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 p-4">
+      <SearchInput autoFocus placeholder="Search articles…" />
       <Suspense fallback={<ArticlesSkeleton />}>
-        <Articles />
+        <Articles searchParams={searchParams} />
       </Suspense>
     </main>
   );
 }
 
-async function Articles() {
-  const { articles } = await getArticles();
+async function Articles({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const { articles } = await getArticles(q);
 
   if (!articles || articles.length === 0) {
     return (
       <Empty>
         <EmptyHeader>
-          <EmptyTitle>No articles yet…</EmptyTitle>
+          <EmptyTitle>No articles found…</EmptyTitle>
         </EmptyHeader>
       </Empty>
     );

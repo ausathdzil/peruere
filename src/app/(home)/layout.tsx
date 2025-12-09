@@ -1,10 +1,12 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UserButton } from '@/components/user-button';
+import pereure from '../../../public/peruere.png';
+import { UserButton } from './_components/user-button';
 
 export default function PublicLayout({ children }: LayoutProps<'/'>) {
   return (
@@ -21,7 +23,19 @@ function Header() {
       <div className="mx-auto flex w-full max-w-6xl items-center gap-4 p-4">
         <nav className="flex flex-1 items-center gap-4">
           <Button asChild size="sm" variant="ghost">
-            <Link href="/">Peruere</Link>
+            <Link href="/">
+              <Image
+                alt="Peruere"
+                height={16}
+                placeholder="blur"
+                src={pereure}
+                width={16}
+              />
+              Peruere
+            </Link>
+          </Button>
+          <Button asChild size="sm" variant="ghost">
+            <Link href="/explore">Explore</Link>
           </Button>
           <Suspense
             fallback={

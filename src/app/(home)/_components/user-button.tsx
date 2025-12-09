@@ -3,9 +3,9 @@ import type { Route } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 
+import { Button, type buttonVariants } from '@/components/ui/button';
 import { auth } from '@/lib/auth';
 import { cn } from '@/lib/utils';
-import { Button, type buttonVariants } from './ui/button';
 
 type NavItem<T extends string = string> = {
   href: T;
