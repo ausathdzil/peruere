@@ -10,10 +10,13 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .model({
     Article: ArticleModel.articleResponse,
   })
+  .error({
+    AuthError,
+  })
   .onError(({ code, status, error }) => {
     switch (code) {
-      case 'VALIDATION':
-        return status(422, { message: error.message });
+      case 'AuthError':
+        return status(error.status, { message: error.message });
     }
   })
   .post(
@@ -43,15 +46,10 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
       },
     },
   )
-  .error({
-    AuthError,
-  })
   .onError(({ code, status, error }) => {
     switch (code) {
       case 'NOT_FOUND':
         return status(404, { message: error.message });
-      case 'AuthError':
-        return status(error.status, { message: error.message });
     }
   })
   .get(

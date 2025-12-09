@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 import { Muted, Title } from '@/components/typography';
-import { SignInForm } from './sign-in-form';
+import { SignInForm } from '../_components/sign-in-form';
 
 export const metadata: Metadata = {
   title: 'Sign In',

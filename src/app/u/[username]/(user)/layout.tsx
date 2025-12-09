@@ -1,4 +1,5 @@
 import { HouseIcon } from 'lucide-react';
+import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -8,10 +9,24 @@ import { Muted } from '@/components/typography';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { auth } from '@/lib/auth';
-import { elysia } from '@/lib/eden';
-import { UserNav } from './user-nav';
-import { CreateArticleButton } from './create-article-button';
-import { SignOutButton } from './sign-out-button';
+import { CreateArticleButton } from './_components/create-article-button';
+import { SignOutButton } from './_components/sign-out-button';
+import { UserNav } from './_components/user-nav';
+import { getAuthor } from './_lib/data';
+
+export async function generateMetadata({
+  params,
+}: PageProps<'/u/[username]'>): Promise<Metadata> {
+  const { username } = await params;
+
+  const { author, authorError } = await getAuthor(username);
+
+  if (authorError?.status === 404 || !author) {
+    return {};
+  }
+
+  return { title: author.name };
+}
 
 type UserLayoutProps = LayoutProps<'/u/[username]'> &
   Omit<PageProps<'/u/[username]'>, 'searchParams'>;
@@ -34,9 +49,9 @@ export default function UserLayout({ children, params }: UserLayoutProps) {
 
 async function Profile({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
-  const { data: author, error } = await elysia.authors({ username }).get();
+  const { author, authorError } = await getAuthor(username);
 
-  if (error?.status === 404 || !author) {
+  if (authorError?.status === 404 || !author) {
     notFound();
   }
 
@@ -54,9 +69,7 @@ async function Profile({ params }: { params: Promise<{ username: string }> }) {
             Home
           </Link>
         </Button>
-        {session?.user.username === author.username && (
-          <CreateArticleButton username={session.user.username ?? ''} />
-        )}
+        {session?.user.username === author.username && <CreateArticleButton />}
       </div>
       <UserNav
         className="col-span-full place-self-center"

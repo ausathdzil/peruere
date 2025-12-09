@@ -3,13 +3,13 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { Text, Title } from '@/components/typography';
-import { elysia } from '@/lib/eden';
+import { getArticle } from '../_lib/data';
 
 export async function generateMetadata({
   params,
 }: PageProps<'/u/[username]/articles/[publicId]'>): Promise<Metadata> {
   const { publicId } = await params;
-  const { data: article, error } = await elysia.articles({ publicId }).get();
+  const { article, error } = await getArticle(publicId);
 
   if (error?.status === 404 || !article) {
     return {};
@@ -25,7 +25,7 @@ export default function Page({
   params,
 }: PageProps<'/u/[username]/articles/[publicId]'>) {
   return (
-    <main className="mx-auto max-w-[60ch] p-16">
+    <main className="p-16">
       <Suspense fallback={null}>
         <ArticleContent params={params} />
       </Suspense>
@@ -39,16 +39,16 @@ type ArticleContentProps = {
 
 async function ArticleContent({ params }: ArticleContentProps) {
   const { publicId } = await params;
-  const { data: article, error } = await elysia.articles({ publicId }).get();
+  const { article, error } = await getArticle(publicId);
 
   if (error?.status === 404 || !article) {
     notFound();
   }
 
   return (
-    <>
+    <article className="prose prose-neutral dark:prose-invert mx-auto">
       <Title>{article.title}</Title>
       <Text>{article.content}</Text>
-    </>
+    </article>
   );
 }

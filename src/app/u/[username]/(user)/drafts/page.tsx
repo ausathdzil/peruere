@@ -1,6 +1,4 @@
 import { formatDate } from 'date-fns';
-import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Suspense } from 'react';
@@ -14,21 +12,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
-import { elysia } from '@/lib/eden';
-
-export async function generateMetadata({
-  params,
-}: PageProps<'/u/[username]/drafts'>): Promise<Metadata> {
-  const { username } = await params;
-
-  const { data: author, error } = await elysia.authors({ username }).get();
-
-  if (error?.status === 404 || !author) {
-    return {};
-  }
-
-  return { title: author.name };
-}
+import { getAuthor, getDrafts } from '../_lib/data';
 
 export default function UserDraftsPage({
   params,
@@ -46,43 +30,41 @@ async function UserDrafts({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const { data: author, error: authorsError } = await elysia
-    .authors({ username })
-    .get();
+  const { author, authorError } = await getAuthor(username);
 
-  if (authorsError?.status === 404 || !author) {
+  if (authorError?.status === 404 || !author) {
     notFound();
   }
 
-  const { data: articles, error: articlesError } =
-    await elysia.articles.drafts.get({
-      headers: await headers(),
-      query: { username },
-    });
+  const { drafts, draftsError } = await getDrafts(username);
 
-  if (articlesError?.status === 403) {
+  if (draftsError?.status === 403) {
     redirect(`/u/${author.username}`);
   }
 
-  return articles?.length === 0 ? (
-    <Empty>
-      <EmptyHeader>
-        <EmptyTitle>No articles yet…</EmptyTitle>
-      </EmptyHeader>
-    </Empty>
-  ) : (
+  if (!drafts || drafts.length === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>No articles yet…</EmptyTitle>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
+  return (
     <ItemGroup className="w-full list-none gap-4">
-      {articles?.map((article) => (
-        <li key={article.publicId}>
+      {drafts.map((draft) => (
+        <li key={draft.publicId}>
           <Item asChild>
             <Link
-              href={`/u/${author.username}/articles/${article.publicId}/edit`}
+              href={`/u/${author.username}/articles/${draft.publicId}/edit`}
             >
               <ItemContent>
-                <ItemTitle>{article.title || 'Untitled Draft'}</ItemTitle>
+                <ItemTitle>{draft.title || 'Untitled Draft'}</ItemTitle>
                 <ItemDescription className="tabular-nums">
                   Last Updated:{' '}
-                  {formatDate(article.updatedAt, 'dd MMM yyyy, HH:mm')}
+                  {formatDate(draft.updatedAt, 'dd MMM yyyy, HH:mm')}
                 </ItemDescription>
               </ItemContent>
             </Link>

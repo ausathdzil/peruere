@@ -9,14 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { elysia } from '@/lib/eden';
 
-type CreateArticleButtonProps = {
-  username: string;
-} & React.ComponentProps<typeof Button>;
-
-export function CreateArticleButton({
-  username,
-  ...props
-}: CreateArticleButtonProps) {
+export function CreateArticleButton(
+  props: React.ComponentProps<typeof Button>,
+) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -29,12 +24,14 @@ export function CreateArticleButton({
         coverImage: null,
       });
 
-      if (error) {
-        toast.error(error.value.message, { position: 'top-center' });
+      if (data) {
+        router.push(
+          `/u/${data.author?.username}/articles/${data.publicId}/edit`,
+        );
       }
 
-      if (data) {
-        router.push(`/u/${username}/articles/${data.publicId}/edit`);
+      if (error) {
+        toast.error(error.value.message, { position: 'top-center' });
       }
     });
   };

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
+
 import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';

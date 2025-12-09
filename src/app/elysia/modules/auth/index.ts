@@ -24,7 +24,7 @@ export const auth = new Elysia({ prefix: '/auth', name: 'better-auth' })
         });
 
         if (!session) {
-          throw new AuthError('You are unauthorized to access this resource');
+          throw new AuthError('You are not allowed to access this resource');
         }
 
         return {

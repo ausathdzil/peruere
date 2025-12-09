@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
@@ -12,21 +11,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
-import { elysia } from '@/lib/eden';
-
-export async function generateMetadata({
-  params,
-}: PageProps<'/u/[username]'>): Promise<Metadata> {
-  const { username } = await params;
-
-  const { data: author, error } = await elysia.authors({ username }).get();
-
-  if (error?.status === 404 || !author) {
-    return {};
-  }
-
-  return { title: author.name };
-}
+import { getArticles, getAuthor } from './_lib/data';
 
 export default function UserPage({ params }: PageProps<'/u/[username]'>) {
   return (
@@ -38,23 +23,27 @@ export default function UserPage({ params }: PageProps<'/u/[username]'>) {
 
 async function Articles({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
-  const { data: author, error } = await elysia.authors({ username }).get();
+  const { author, authorError } = await getAuthor(username);
 
-  if (error?.status === 404 || !author) {
+  if (authorError?.status === 404 || !author) {
     notFound();
   }
 
-  const { data: articles } = await elysia.articles.get({ query: { username } });
+  const { articles } = await getArticles(username);
 
-  return articles?.length === 0 ? (
-    <Empty>
-      <EmptyHeader>
-        <EmptyTitle>No articles yet…</EmptyTitle>
-      </EmptyHeader>
-    </Empty>
-  ) : (
+  if (!articles || articles.length === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>No articles yet…</EmptyTitle>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
+  return (
     <ItemGroup className="w-full list-none gap-4">
-      {articles?.map((article) => (
+      {articles.map((article) => (
         <li key={article.publicId}>
           <Item asChild>
             <Link href={`/u/${author.username}/articles/${article.publicId}`}>

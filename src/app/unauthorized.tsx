@@ -1,5 +1,5 @@
 import { Muted, Title } from '@/components/typography';
-import { SignInForm } from './(auth)/sign-in/sign-in-form';
+import { SignInForm } from './(auth)/_components/sign-in-form';
 
 export default function Unauthorized() {
   return (
