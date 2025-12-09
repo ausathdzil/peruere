@@ -34,7 +34,7 @@ export function CreateArticleButton({
       }
 
       if (data) {
-        router.push(`/u/${username}/articles/${data.publicId}`);
+        router.push(`/u/${username}/articles/${data.publicId}/edit`);
       }
     });
   };

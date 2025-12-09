@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
-import { Lead } from '@/components/typography';
+import { Lead, Muted, Text } from '@/components/typography';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import {
@@ -74,8 +74,8 @@ async function ProfileInfo({
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 p-8">
-      <div className="grid w-full grid-cols-[1fr_auto] items-center gap-4 px-4">
-        <Lead>{author.name}</Lead>
+      <div className="grid w-full grid-cols-[1fr_auto] items-center gap-4 pl-4">
+        <Muted>@{author.displayUsername}</Muted>
         <div className="flex items-center gap-2">
           <Button asChild size="sm" variant="ghost">
             <Link href="/">
