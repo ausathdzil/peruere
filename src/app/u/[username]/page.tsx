@@ -26,9 +26,7 @@ export async function generateMetadata({
 }: PageProps<'/u/[username]'>): Promise<Metadata> {
   const { username } = await params;
 
-  const { data: author, error } = await elysia
-    .authors({ handle: username })
-    .get();
+  const { data: author, error } = await elysia.authors({ username }).get();
 
   if (error?.status === 404 || !author) {
     return {};
@@ -56,9 +54,7 @@ async function ProfileInfo({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const { data: author, error } = await elysia
-    .authors({ handle: username })
-    .get();
+  const { data: author, error } = await elysia.authors({ username }).get();
 
   if (error?.status === 404 || !author) {
     notFound();
@@ -68,11 +64,7 @@ async function ProfileInfo({
     headers: await headers(),
   });
 
-  const { data: articles } = await elysia.articles.get({
-    query: {
-      handle: username,
-    },
-  });
+  const { data: articles } = await elysia.articles.get({ query: { username } });
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 p-8">

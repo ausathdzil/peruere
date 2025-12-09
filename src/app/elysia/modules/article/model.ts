@@ -17,6 +17,12 @@ export namespace ArticleModel {
 
   export type CreateArticleBody = typeof createArticleBody.static;
 
+  export const articlesQuery = t.Object({
+    username: t.Optional(t.String()),
+  });
+
+  export type ArticlesQuery = typeof articlesQuery.static;
+
   export const articleResponse = t.Object({
     publicId: articles.publicId,
     title: articles.title,

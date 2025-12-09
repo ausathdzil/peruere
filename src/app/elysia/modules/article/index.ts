@@ -34,12 +34,10 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .get(
     '',
     async ({ query }) => {
-      return await Article.getArticles(query.handle);
+      return await Article.getArticles(query);
     },
     {
-      query: t.Object({
-        handle: t.Optional(t.String()),
-      }),
+      query: ArticleModel.articlesQuery,
       response: {
         200: t.Array(Ref(ArticleModel.articleResponse)),
       },
@@ -59,7 +57,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .get(
     '/:publicId',
     async ({ params: { publicId } }) => {
-      return await Article.getArticleByPublicId(publicId);
+      return await Article.getArticle(publicId);
     },
     {
       response: {
@@ -91,7 +89,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
     {
       auth: true,
       response: {
-        200: t.Object({ message: t.String() }),
+        200: ArticleModel.articleInvalid,
         401: ArticleModel.articleInvalid,
         404: ArticleModel.articleInvalid,
       },

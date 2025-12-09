@@ -26,9 +26,9 @@ export const author = new Elysia({ prefix: '/authors', tags: ['Authors'] })
     }
   })
   .get(
-    '/:handle',
-    async ({ params: { handle } }) => {
-      return await Author.getAuthor(handle);
+    '/:username',
+    async ({ params: { username } }) => {
+      return await Author.getAuthor(username);
     },
     {
       response: {

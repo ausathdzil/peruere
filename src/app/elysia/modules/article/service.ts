@@ -11,9 +11,9 @@ import type { ArticleModel } from './model';
 export abstract class Article {
   static async createArticle(
     { title, content, status, coverImage }: ArticleModel.CreateArticleBody,
-    handle: string,
+    username: string,
   ) {
-    const author = await Author.getAuthor(handle);
+    const author = await Author.getAuthor(username);
 
     const [article] = await db
       .insert(articles)
@@ -44,7 +44,7 @@ export abstract class Article {
     } satisfies ArticleModel.ArticleResponse;
   }
 
-  static async getArticles(handle?: string | undefined) {
+  static async getArticles({ username }: ArticleModel.ArticlesQuery) {
     return (await db
       .select({
         publicId: articles.publicId,
@@ -69,12 +69,12 @@ export abstract class Article {
       .where(
         and(
           eq(articles.status, 'published'),
-          handle ? eq(user.username, handle) : undefined,
+          username ? eq(user.username, username) : undefined,
         ),
       )) satisfies Array<ArticleModel.ArticleResponse>;
   }
 
-  static async getArticleByPublicId(publicId: string) {
+  static async getArticle(publicId: string) {
     const [article] = await db
       .select({
         publicId: articles.publicId,
@@ -117,7 +117,7 @@ export abstract class Article {
     }: ArticleModel.UpdateArticleBody,
     userId: string,
   ) {
-    const article = await Article.getArticleByPublicId(publicId);
+    const article = await Article.getArticle(publicId);
 
     if (article.authorId !== userId) {
       throw new AuthError('You are not allowed to modify this article');
@@ -170,7 +170,7 @@ export abstract class Article {
   }
 
   static async deleteArticle(publicId: string, userId: string) {
-    const article = await Article.getArticleByPublicId(publicId);
+    const article = await Article.getArticle(publicId);
 
     if (article.authorId !== userId) {
       throw new AuthError('You are not allowed to delete this article');

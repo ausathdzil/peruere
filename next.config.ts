@@ -14,12 +14,12 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         {
-          source: '/@:handle/articles/:publicId',
-          destination: '/u/:handle/articles/:publicId',
+          source: '/@:username/articles/:publicId',
+          destination: '/u/:username/articles/:publicId',
         },
         {
-          source: '/@:handle',
-          destination: '/u/:handle',
+          source: '/@:username',
+          destination: '/u/:username',
         },
       ],
     };
