@@ -18,7 +18,7 @@ import { elysia } from '@/lib/eden';
 
 export async function generateMetadata({
   params,
-}: PageProps<'/u/[username]/articles/drafts'>): Promise<Metadata> {
+}: PageProps<'/u/[username]/drafts'>): Promise<Metadata> {
   const { username } = await params;
 
   const { data: author, error } = await elysia.authors({ username }).get();
@@ -32,7 +32,7 @@ export async function generateMetadata({
 
 export default function UserDraftsPage({
   params,
-}: PageProps<'/u/[username]/articles/drafts'>) {
+}: PageProps<'/u/[username]/drafts'>) {
   return (
     <Suspense fallback={<UserDraftsSkeleton />}>
       <UserDrafts params={params} />

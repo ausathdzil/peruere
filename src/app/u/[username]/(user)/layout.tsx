@@ -9,14 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { auth } from '@/lib/auth';
 import { elysia } from '@/lib/eden';
-import { UserNav } from './articles/user-nav';
+import { UserNav } from './user-nav';
 import { CreateArticleButton } from './create-article-button';
 import { SignOutButton } from './sign-out-button';
 
-export default function UserLayout({
-  children,
-  params,
-}: LayoutProps<'/u/[username]'> & PageProps<'/u/[username]'>) {
+type UserLayoutProps = LayoutProps<'/u/[username]'> &
+  Omit<PageProps<'/u/[username]'>, 'searchParams'>;
+
+export default function UserLayout({ children, params }: UserLayoutProps) {
   return (
     <main className="grid min-h-screen grid-rows-[1fr_auto] gap-4 pt-safe-top">
       <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 p-8">

@@ -18,7 +18,7 @@ export function UserNav({ user, username, className, ...props }: UserNavProps) {
   const pathname = usePathname();
 
   const isArticlesPage = pathname === `/u/${username}`;
-  const isDraftsPage = pathname === `/u/${username}/articles/drafts`;
+  const isDraftsPage = pathname === `/u/${username}/drafts`;
 
   return (
     <div className={cn('flex items-center gap-2', className)} {...props}>
@@ -35,7 +35,7 @@ export function UserNav({ user, username, className, ...props }: UserNavProps) {
           size="pill-sm"
           variant={isDraftsPage ? 'secondary' : 'ghost'}
         >
-          <Link href={`/u/${username}/articles/drafts`}>Drafts</Link>
+          <Link href={`/u/${username}/drafts`}>Drafts</Link>
         </Button>
       )}
     </div>
