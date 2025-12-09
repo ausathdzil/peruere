@@ -19,7 +19,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .post(
     '',
     async ({ body, user }) => {
-      return await Article.createArticle(body, user.id);
+      return await Article.createArticle(body, user.username ?? '');
     },
     {
       auth: true,
@@ -90,18 +90,6 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
       response: {
         200: t.Object({ message: t.String() }),
         401: ArticleModel.articleInvalid,
-        404: ArticleModel.articleInvalid,
-      },
-    },
-  )
-  .get(
-    '/lookup/:slug',
-    async ({ params: { slug } }) => {
-      return await Article.getArticleBySlug(slug);
-    },
-    {
-      response: {
-        200: 'Article',
         404: ArticleModel.articleInvalid,
       },
     },

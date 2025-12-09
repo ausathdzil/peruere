@@ -10,7 +10,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { elysia } from '@/lib/eden';
 
 type CreateArticleButtonProps = {
-  username: string | null;
+  username: string;
 } & React.ComponentProps<typeof Button>;
 
 export function CreateArticleButton({
@@ -34,7 +34,7 @@ export function CreateArticleButton({
       }
 
       if (data) {
-        router.push(`/profile/${username}/articles/${data.publicId}`);
+        router.push(`/u/${username}/articles/${data.publicId}`);
       }
     });
   };

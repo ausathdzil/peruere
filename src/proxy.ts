@@ -13,9 +13,9 @@ export default async function proxy(req: NextRequest) {
     headers: await headers(),
   });
 
-  if (isAuthRoute && session && path.startsWith('/profile')) {
+  if (isAuthRoute && session && path.startsWith('/u')) {
     return NextResponse.redirect(
-      new URL(`/profile/${session.user.username}`, req.nextUrl),
+      new URL(`/u/${session.user.username}`, req.nextUrl),
     );
   }
 

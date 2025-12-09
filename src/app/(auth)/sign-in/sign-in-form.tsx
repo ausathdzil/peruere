@@ -76,7 +76,7 @@ export function SignInForm({
         setLoading(false);
       },
       onSuccess: () => {
-        router.push(`/profile/${values.username}`);
+        router.push(`/u/${values.username}`);
       },
       onError: (ctx) => {
         form.setError('root', {

@@ -7,9 +7,9 @@ import { elysia } from '@/lib/eden';
 
 export async function generateMetadata({
   params,
-}: PageProps<'/articles/[slug]'>): Promise<Metadata> {
-  const { slug } = await params;
-  const { data: article, error } = await elysia.articles.lookup({ slug }).get();
+}: PageProps<'/u/[username]/articles/[publicId]'>): Promise<Metadata> {
+  const { publicId } = await params;
+  const { data: article, error } = await elysia.articles({ publicId }).get();
 
   if (error?.status === 404 || !article) {
     return {};
@@ -21,7 +21,9 @@ export async function generateMetadata({
   };
 }
 
-export default function Page({ params }: PageProps<'/articles/[slug]'>) {
+export default function Page({
+  params,
+}: PageProps<'/u/[username]/articles/[publicId]'>) {
   return (
     <main className="mx-auto max-w-[60ch] p-16">
       <Suspense fallback={null}>
@@ -32,12 +34,12 @@ export default function Page({ params }: PageProps<'/articles/[slug]'>) {
 }
 
 type ArticleContentProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ publicId: string }>;
 };
 
 async function ArticleContent({ params }: ArticleContentProps) {
-  const { slug } = await params;
-  const { data: article, error } = await elysia.articles.lookup({ slug }).get();
+  const { publicId } = await params;
+  const { data: article, error } = await elysia.articles({ publicId }).get();
 
   if (error?.status === 404 || !article) {
     notFound();

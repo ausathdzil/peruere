@@ -9,6 +9,21 @@ const nextConfig: NextConfig = {
   },
   reactCompiler: true,
   typedRoutes: true,
+
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/@:handle/articles/:publicId',
+          destination: '/u/:handle/articles/:publicId',
+        },
+        {
+          source: '/@:handle',
+          destination: '/u/:handle',
+        },
+      ],
+    };
+  },
 };
 
 const withBundleAnalyzer = bundleAnalyzer({

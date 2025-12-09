@@ -7,7 +7,7 @@ import { ContentEditor } from './content-editor';
 
 export async function generateMetadata({
   params,
-}: PageProps<'/profile/[username]/articles/[publicId]'>): Promise<Metadata> {
+}: PageProps<'/u/[username]/articles/[publicId]'>): Promise<Metadata> {
   const { publicId } = await params;
   const { data: article, error } = await elysia.articles({ publicId }).get();
 
@@ -23,7 +23,7 @@ export async function generateMetadata({
 
 export default function ArticlePage({
   params,
-}: PageProps<'/profile/[username]/articles/[publicId]'>) {
+}: PageProps<'/u/[username]/articles/[publicId]'>) {
   return (
     <main className="grid min-h-screen pt-safe-top">
       <Suspense fallback={null}>

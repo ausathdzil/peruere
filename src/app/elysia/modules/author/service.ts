@@ -54,8 +54,16 @@ export abstract class Author {
         coverImage: articles.coverImage,
         createdAt: articles.createdAt,
         updatedAt: articles.updatedAt,
+        author: {
+          name: user.name,
+          image: user.image,
+          createdAt: user.createdAt,
+          username: user.username,
+          displayUsername: user.displayUsername,
+        },
       })
       .from(articles)
+      .leftJoin(user, eq(articles.authorId, user.id))
       .where(
         and(eq(articles.authorId, author.id), eq(articles.status, 'published')),
       )) satisfies Array<ArticleModel.ArticleResponse>;

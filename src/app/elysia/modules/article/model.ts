@@ -1,6 +1,7 @@
 import { t } from 'elysia';
 
 import { db } from '@/db/models';
+import { AuthorModel } from '../author/model';
 
 export namespace ArticleModel {
   const { articles } = db.select;
@@ -26,6 +27,7 @@ export namespace ArticleModel {
     coverImage: articles.coverImage,
     createdAt: articles.createdAt,
     updatedAt: articles.updatedAt,
+    author: t.Nullable(AuthorModel.authorResponse),
   });
 
   export type ArticleResponse = typeof articleResponse.static;

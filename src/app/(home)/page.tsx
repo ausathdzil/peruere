@@ -40,7 +40,9 @@ async function Articles() {
       {articles?.map((article) => (
         <li key={article.publicId}>
           <Item asChild>
-            <Link href={`/articles/${article.slug}`}>
+            <Link
+              href={`/u/${article.author?.username}/articles/${article.publicId}`}
+            >
               <ItemContent>
                 <ItemTitle>{article.title}</ItemTitle>
                 <ItemDescription>{article.excerpt}</ItemDescription>

@@ -11,7 +11,7 @@ export default async function AuthLayout({ children }: LayoutProps<'/'>) {
   });
 
   if (session) {
-    redirect(`/profile/${session.user.username}`);
+    redirect(`/u/${session.user.username}`);
   }
 
   return (

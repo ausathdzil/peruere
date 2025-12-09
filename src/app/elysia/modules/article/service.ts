@@ -5,18 +5,15 @@ import { db } from '@/db';
 import { articles, user } from '@/db/schema';
 import { slugify } from '@/lib/utils';
 import { AuthError } from '../auth';
+import { Author } from '../author/service';
 import type { ArticleModel } from './model';
 
 export abstract class Article {
   static async createArticle(
     { title, content, status, coverImage }: ArticleModel.CreateArticleBody,
-    userId: string,
+    handle: string,
   ) {
-    const [author] = await db.select().from(user).where(eq(user.id, userId));
-
-    if (!author) {
-      throw new NotFoundError('Author not found');
-    }
+    const author = await Author.getAuthor(handle);
 
     const [article] = await db
       .insert(articles)
@@ -27,7 +24,7 @@ export abstract class Article {
         excerpt: content.substring(0, 255),
         status,
         coverImage,
-        authorId: userId,
+        authorId: author.id,
       })
       .returning({
         publicId: articles.publicId,
@@ -41,7 +38,10 @@ export abstract class Article {
         updatedAt: articles.updatedAt,
       });
 
-    return article satisfies ArticleModel.ArticleResponse;
+    return {
+      ...article,
+      author,
+    } satisfies ArticleModel.ArticleResponse;
   }
 
   static async getArticles() {
@@ -56,35 +56,19 @@ export abstract class Article {
         coverImage: articles.coverImage,
         createdAt: articles.createdAt,
         updatedAt: articles.updatedAt,
+        author: {
+          name: user.name,
+          image: user.image,
+          createdAt: user.createdAt,
+          username: user.username,
+          displayUsername: user.displayUsername,
+        },
       })
       .from(articles)
+      .leftJoin(user, eq(articles.authorId, user.id))
       .where(
         eq(articles.status, 'published'),
       )) satisfies Array<ArticleModel.ArticleResponse>;
-  }
-
-  static async getArticleBySlug(slug: string) {
-    const [article] = await db
-      .select({
-        publicId: articles.publicId,
-        title: articles.title,
-        slug: articles.slug,
-        content: articles.content,
-        excerpt: articles.excerpt,
-        status: articles.status,
-        coverImage: articles.coverImage,
-        createdAt: articles.createdAt,
-        updatedAt: articles.updatedAt,
-      })
-      .from(articles)
-      .where(eq(articles.slug, slug))
-      .limit(1);
-
-    if (!article) {
-      throw new NotFoundError('Article not found');
-    }
-
-    return article satisfies ArticleModel.ArticleResponse;
   }
 
   static async getArticleByPublicId(publicId: string) {
@@ -100,8 +84,16 @@ export abstract class Article {
         createdAt: articles.createdAt,
         updatedAt: articles.updatedAt,
         authorId: articles.authorId,
+        author: {
+          name: user.name,
+          image: user.image,
+          createdAt: user.createdAt,
+          username: user.username,
+          displayUsername: user.displayUsername,
+        },
       })
       .from(articles)
+      .leftJoin(user, eq(articles.authorId, user.id))
       .where(eq(articles.publicId, publicId))
       .limit(1);
 
@@ -168,7 +160,10 @@ export abstract class Article {
         updatedAt: articles.updatedAt,
       });
 
-    return updatedData satisfies ArticleModel.ArticleResponse;
+    return {
+      ...updatedData,
+      author: article.author,
+    } satisfies ArticleModel.ArticleResponse;
   }
 
   static async deleteArticle(publicId: string, userId: string) {

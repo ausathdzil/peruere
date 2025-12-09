@@ -23,7 +23,7 @@ import { SignOutButton } from './sign-out-button';
 
 export async function generateMetadata({
   params,
-}: PageProps<'/profile/[username]'>): Promise<Metadata> {
+}: PageProps<'/u/[username]'>): Promise<Metadata> {
   const { username } = await params;
 
   const { data: author, error } = await elysia
@@ -37,9 +37,7 @@ export async function generateMetadata({
   return { title: author.name };
 }
 
-export default function ProfilePage({
-  params,
-}: PageProps<'/profile/[username]'>) {
+export default function ProfilePage({ params }: PageProps<'/u/[username]'>) {
   return (
     <main className="grid min-h-screen grid-rows-[1fr_auto] gap-4 pt-safe-top">
       <Suspense fallback={<ProfileSkeleton />}>
@@ -86,7 +84,7 @@ async function ProfileInfo({
             </Link>
           </Button>
           {session?.user.username === author.username && (
-            <CreateArticleButton username={session.user.username} />
+            <CreateArticleButton username={session.user.username ?? ''} />
           )}
         </div>
       </div>
@@ -101,7 +99,9 @@ async function ProfileInfo({
           {articles?.map((article) => (
             <li key={article.publicId}>
               <Item asChild>
-                <Link href={`/articles/${article.slug}`}>
+                <Link
+                  href={`/u/${author.username}/articles/${article.publicId}`}
+                >
                   <ItemContent>
                     <ItemTitle>{article.title}</ItemTitle>
                     <ItemDescription>{article.excerpt}</ItemDescription>
