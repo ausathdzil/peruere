@@ -70,6 +70,7 @@ export function SearchInput({
         autoCapitalize="off"
         autoComplete="off"
         className={className}
+        name="q"
         onBlur={() => setIsFocused(false)}
         onChange={handleSearch}
         onFocus={() => setIsFocused(true)}
