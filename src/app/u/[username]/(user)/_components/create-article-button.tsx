@@ -18,7 +18,7 @@ export function CreateArticleButton(
   const handleClick = () => {
     startTransition(async () => {
       const { data, error } = await elysia.articles.post({
-        title: '',
+        title: 'Untitled Draft',
         content: '',
         status: 'draft',
         coverImage: null,

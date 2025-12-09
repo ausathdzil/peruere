@@ -14,14 +14,14 @@ export async function getAuthor(username: string) {
   return { author, authorError };
 }
 
-export async function getArticles(username: string) {
+export async function getArticles(username: string, q?: string) {
   const { data: articles, error: articlesError } = await elysia.articles.get({
-    query: { username },
+    query: { username, q },
     fetch: {
       cache: 'force-cache',
       next: {
         revalidate: 900,
-        tags: [`articles-${username}`],
+        tags: [`articles-${username}`, q ? `${q}` : ''],
       },
     },
   });
@@ -29,14 +29,14 @@ export async function getArticles(username: string) {
   return { articles, articlesError };
 }
 
-export async function getDrafts(username: string) {
+export async function getDrafts(username: string, q?: string) {
   const { data: drafts, error: draftsError } = await elysia.articles.drafts.get(
     {
       headers: await headers(),
-      query: { username },
+      query: { username, q },
       fetch: {
         next: {
-          tags: [`drafts-${username}`],
+          tags: q ? [`drafts-${username}`, `${q}`] : [`drafts-${username}`],
         },
       },
     },

@@ -13,23 +13,34 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { getArticles, getAuthor } from './_lib/data';
 
-export default function UserPage({ params }: PageProps<'/u/[username]'>) {
+export default function UserPage({
+  params,
+  searchParams,
+}: PageProps<'/u/[username]'>) {
   return (
     <Suspense fallback={<ArticlesSkeleton />}>
-      <Articles params={params} />
+      <Articles params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function Articles({ params }: { params: Promise<{ username: string }> }) {
+async function Articles({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ username: string }>;
+  searchParams: Promise<{ q?: string }>;
+}) {
   const { username } = await params;
+  const { q } = await searchParams;
+
   const { author, authorError } = await getAuthor(username);
 
   if (authorError?.status === 404 || !author) {
     notFound();
   }
 
-  const { articles } = await getArticles(username);
+  const { articles } = await getArticles(username, q);
 
   if (!articles || articles.length === 0) {
     return (

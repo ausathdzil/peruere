@@ -16,27 +16,32 @@ import { getAuthor, getDrafts } from '../_lib/data';
 
 export default function UserDraftsPage({
   params,
+  searchParams,
 }: PageProps<'/u/[username]/drafts'>) {
   return (
     <Suspense fallback={<UserDraftsSkeleton />}>
-      <UserDrafts params={params} />
+      <UserDrafts params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
 async function UserDrafts({
   params,
+  searchParams,
 }: {
   params: Promise<{ username: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { username } = await params;
+  const { q } = await searchParams;
+
   const { author, authorError } = await getAuthor(username);
 
   if (authorError?.status === 404 || !author) {
     notFound();
   }
 
-  const { drafts, draftsError } = await getDrafts(username);
+  const { drafts, draftsError } = await getDrafts(username, q);
 
   if (draftsError?.status === 403) {
     redirect(`/u/${author.username}`);
@@ -46,7 +51,7 @@ async function UserDrafts({
     return (
       <Empty>
         <EmptyHeader>
-          <EmptyTitle>No articles yet…</EmptyTitle>
+          <EmptyTitle>No drafts yet…</EmptyTitle>
         </EmptyHeader>
       </Empty>
     );

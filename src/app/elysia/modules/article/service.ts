@@ -189,7 +189,7 @@ export abstract class Article {
   }
 
   static async getDrafts(
-    { username }: ArticleModel.ArticlesQuery,
+    { username, q }: Omit<ArticleModel.ArticlesQuery, 'status' | 'authorId'>,
     userId: string,
   ) {
     const author = await Author.getAuthor(username ?? '');
@@ -201,6 +201,7 @@ export abstract class Article {
     return (await Article.getArticles({
       status: 'draft',
       authorId: author.id,
+      q,
     })) satisfies Array<ArticleModel.ArticleResponse>;
   }
 

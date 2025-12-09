@@ -16,7 +16,9 @@ import { getArticles } from '../_lib/data';
 export default function ExplorePage({ searchParams }: PageProps<'/explore'>) {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 p-4">
-      <SearchInput autoFocus placeholder="Search articles…" />
+      <Suspense fallback={<Skeleton className="h-9 w-full" />}>
+        <SearchInput autoFocus placeholder="Search articles…" />
+      </Suspense>
       <Suspense fallback={<ArticlesSkeleton />}>
         <Articles searchParams={searchParams} />
       </Suspense>

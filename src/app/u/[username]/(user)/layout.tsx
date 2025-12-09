@@ -36,7 +36,7 @@ export default function UserLayout({ children, params }: UserLayoutProps) {
     <main className="grid min-h-screen grid-rows-[1fr_auto] gap-4 pt-safe-top">
       <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 p-8">
         <Suspense fallback={<ProfileSkeleton />}>
-          <Profile params={params} />
+          <Header params={params} />
         </Suspense>
         {children}
       </section>
@@ -47,7 +47,7 @@ export default function UserLayout({ children, params }: UserLayoutProps) {
   );
 }
 
-async function Profile({ params }: { params: Promise<{ username: string }> }) {
+async function Header({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const { author, authorError } = await getAuthor(username);
 
@@ -60,19 +60,23 @@ async function Profile({ params }: { params: Promise<{ username: string }> }) {
   });
 
   return (
-    <div className="grid w-full grid-cols-[1fr_auto] items-center gap-4 pl-4">
-      <Muted>@{author.displayUsername}</Muted>
-      <div className="flex items-center gap-2">
-        <Button asChild size="sm" variant="ghost">
-          <Link href="/">
-            <HouseIcon />
-            Home
-          </Link>
-        </Button>
-        {session?.user.username === author.username && <CreateArticleButton />}
+    <div className="grid w-full gap-4">
+      <div className="grid grid-cols-[1fr_auto] items-center gap-4 pl-4">
+        <Muted>@{author.displayUsername}</Muted>
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="ghost">
+            <Link href="/">
+              <HouseIcon />
+              Home
+            </Link>
+          </Button>
+          {session?.user.username === author.username && (
+            <CreateArticleButton />
+          )}
+        </div>
       </div>
       <UserNav
-        className="col-span-full place-self-center"
+        className="place-self-center"
         user={session?.user}
         username={username}
       />

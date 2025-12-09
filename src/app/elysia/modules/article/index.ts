@@ -96,7 +96,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .get(
     '/drafts',
     async ({ query, user }) => {
-      return await Article.getDrafts({ username: query.username }, user.id);
+      return await Article.getDrafts(query, user.id);
     },
     {
       auth: true,
