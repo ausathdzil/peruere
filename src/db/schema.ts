@@ -106,11 +106,11 @@ export const articles = pgTable(
       .$defaultFn(() => nanoid(12))
       .notNull()
       .unique(),
-    title: varchar('title', { length: 255 }).notNull(),
-    slug: varchar('slug', { length: 255 }).notNull().unique(),
-    content: text('content').notNull(),
-    excerpt: varchar('excerpt', { length: 255 }).notNull(),
-    status: articleStatus('status').default('draft').notNull(),
+    title: varchar('title', { length: 255 }),
+    slug: varchar('slug', { length: 255 }),
+    content: text('content'),
+    excerpt: varchar('excerpt', { length: 255 }),
+    status: articleStatus('status').default('draft'),
     coverImage: text('cover_image'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')

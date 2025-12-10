@@ -25,10 +25,10 @@ export abstract class Article {
     const [article] = await db
       .insert(articles)
       .values({
-        title: title.trim(),
-        slug: await Article.generateArticleSlug(title),
-        content: content.trim(),
-        excerpt: content.substring(0, 255),
+        title: title?.trim(),
+        slug: slugify(title),
+        content: content?.trim(),
+        excerpt: content?.substring(0, 255),
         status,
         coverImage,
         authorId: author.id,
@@ -143,16 +143,14 @@ export abstract class Article {
 
     const payload: Partial<ArticleModel.UpdateArticleBody> = {};
 
-    const trimmedTitle = title?.trim();
-
-    if (trimmedTitle && trimmedTitle !== article.title) {
-      payload.title = trimmedTitle;
-      payload.slug = await Article.generateArticleSlug(trimmedTitle);
+    if (title !== undefined) {
+      payload.title = title?.trim();
+      payload.slug = slugify(title);
     }
 
-    if (content !== undefined && content !== article.content) {
-      payload.content = content;
-      payload.excerpt = content.substring(0, 255);
+    if (content !== undefined) {
+      payload.content = content?.trim();
+      payload.excerpt = content?.substring(0, 255);
     }
 
     if (articleStatus !== undefined) {
@@ -214,30 +212,5 @@ export abstract class Article {
       authorId: userId,
       q,
     })) satisfies Array<ArticleModel.ArticleResponse>;
-  }
-
-  static async generateArticleSlug(title: string) {
-    const base = slugify(title);
-
-    const rows = await db
-      .select({ slug: articles.slug })
-      .from(articles)
-      .where(ilike(articles.slug, `${base}%`));
-
-    const existing = rows.map((r) => r.slug);
-
-    if (!existing.includes(base)) {
-      return base;
-    }
-
-    let i = 2;
-    let candidate = `${base}-${i}`;
-
-    while (existing.includes(candidate)) {
-      i++;
-      candidate = `${base}-${i}`;
-    }
-
-    return candidate;
   }
 }

@@ -9,10 +9,9 @@ import { elysia } from '@/lib/eden';
 export async function createDraft() {
   const { data, error } = await elysia.articles.post(
     {
-      title: 'Untitled Draft',
+      title: '',
       content: '',
       status: 'draft',
-      coverImage: null,
     },
     { headers: await headers() },
   );

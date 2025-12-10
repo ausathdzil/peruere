@@ -32,8 +32,8 @@ export async function updateArticle(
 
   if (data) {
     updateTag('articles');
+    updateTag(`articles-${data.author?.username}`);
     updateTag(`article-${data.publicId}`);
-    updateTag(`article-${data.author?.username}`);
-    updateTag(`drafts-${data.author?.username}`);
+    updateTag('drafts');
   }
 }

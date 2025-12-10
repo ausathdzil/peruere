@@ -8,14 +8,15 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
 import { useDebouncedCallback } from 'use-debounce';
+import type { ArticleModel } from '@/app/elysia/modules/article/model';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { updateArticle } from '../_lib/actions';
 
 type ContentEditorProps = {
   publicId: string;
-  currentTitle: string;
-  currentContent: string;
+  currentTitle: string | null | undefined;
+  currentContent: string | null | undefined;
 };
 
 export function ContentEditor({
@@ -28,7 +29,6 @@ export function ContentEditor({
   const [content, setContent] = useState(currentContent);
 
   const titleRef = useRef<HTMLTextAreaElement | null>(null);
-  const pendingPayloadRef = useRef<{ title?: string; content?: string }>({});
 
   useEffect(() => {
     const el = titleRef.current;
@@ -39,22 +39,18 @@ export function ContentEditor({
     el.style.height = `${el.scrollHeight}px`;
   }, []);
 
-  const flushPending = useDebouncedCallback(() => {
-    const payload = pendingPayloadRef.current;
-    pendingPayloadRef.current = {};
+  const autosave = useDebouncedCallback(
+    (body: ArticleModel.UpdateArticleBody) => {
+      startTransition(async () => {
+        const res = await updateArticle(publicId, body);
 
-    if (Object.keys(payload).length === 0) {
-      return;
-    }
-
-    startTransition(async () => {
-      const res = await updateArticle(publicId, payload);
-
-      if (res?.error) {
-        toast.error(res.error.message, { position: 'top-center' });
-      }
-    });
-  }, 1000);
+        if (res?.error) {
+          toast.error(res.error.message, { position: 'top-center' });
+        }
+      });
+    },
+    1000,
+  );
 
   const editor = useEditor({
     extensions: [
@@ -98,8 +94,7 @@ export function ContentEditor({
     onUpdate: ({ editor }) => {
       const content = editor.getMarkdown();
       setContent(content);
-      pendingPayloadRef.current = { ...pendingPayloadRef.current, content };
-      flushPending();
+      autosave({ content });
     },
     immediatelyRender: false,
   });
@@ -122,19 +117,15 @@ export function ContentEditor({
           const el = e.currentTarget;
           el.style.height = '0px';
           el.style.height = `${el.scrollHeight}px`;
-          const value = el.value;
-          setTitle(value);
-          pendingPayloadRef.current = {
-            ...pendingPayloadRef.current,
-            title: value,
-          };
-          flushPending();
+          const title = el.value;
+          setTitle(title);
+          autosave({ title });
         }}
         placeholder="Title"
         ref={titleRef}
         rows={1}
         spellCheck="true"
-        value={title}
+        value={title ?? ''}
       />
       <EditorContent editor={editor} />
     </div>

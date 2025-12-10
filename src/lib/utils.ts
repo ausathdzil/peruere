@@ -5,7 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function slugify(input: string) {
+export function slugify(input: string | null | undefined) {
+  if (!input) {
+    return null;
+  }
+
   return input
     .toLowerCase()
     .trim() // Remove whitespace from both ends of a string
