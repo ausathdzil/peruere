@@ -1,37 +1,25 @@
 'use client';
 
 import { NotebookPenIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { elysia } from '@/lib/eden';
+import { createDraft } from '../_lib/actions';
 
 export function CreateArticleButton(
   props: React.ComponentProps<typeof Button>,
 ) {
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const handleClick = () => {
     startTransition(async () => {
-      const { data, error } = await elysia.articles.post({
-        title: 'Untitled Draft',
-        content: '',
-        status: 'draft',
-        coverImage: null,
-      });
-
-      if (data) {
-        router.push(
-          `/u/${data.author?.username}/articles/${data.publicId}/edit`,
-        );
-      }
+      const { error } = await createDraft();
 
       if (error) {
-        toast.error(error.value.message, { position: 'top-center' });
+        toast.error(error.message, { position: 'top-center' });
+        return;
       }
     });
   };

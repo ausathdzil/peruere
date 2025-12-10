@@ -8,6 +8,10 @@ export async function getAuthor(username: string) {
     .get({
       fetch: {
         cache: 'force-cache',
+        next: {
+          revalidate: 900,
+          tags: [`author-${username}`],
+        },
       },
     });
 
@@ -21,7 +25,7 @@ export async function getArticles(username: string, q?: string) {
       cache: 'force-cache',
       next: {
         revalidate: 900,
-        tags: [`articles-${username}`, q ? `${q}` : ''],
+        tags: [`articles-${username}`],
       },
     },
   });
@@ -36,7 +40,7 @@ export async function getDrafts(username: string, q?: string) {
       query: { username, q },
       fetch: {
         next: {
-          tags: q ? [`drafts-${username}`, `${q}`] : [`drafts-${username}`],
+          tags: [`drafts-${username}`],
         },
       },
     },

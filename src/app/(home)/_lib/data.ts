@@ -7,7 +7,7 @@ export async function getArticles(q?: string) {
       cache: 'force-cache',
       next: {
         revalidate: 900,
-        tags: q ? ['articles', `${q}`] : ['articles'],
+        tags: ['articles'],
       },
     },
   });
