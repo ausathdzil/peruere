@@ -23,13 +23,9 @@ export const auth = new Elysia({ prefix: '/auth', name: 'better-auth' })
           headers,
         });
 
-        if (!session) {
-          throw new AuthError('You are not allowed to access this resource');
-        }
-
         return {
-          user: session.user,
-          session: session.session,
+          user: session?.user,
+          session: session?.session,
         };
       },
     },

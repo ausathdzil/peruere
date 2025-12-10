@@ -1,7 +1,5 @@
-import { headers } from 'next/headers';
+import { getSessionCookie } from 'better-auth/cookies';
 import { type NextRequest, NextResponse } from 'next/server';
-
-import { auth } from './lib/auth';
 
 const authRoutes = ['/sign-in', '/sign-up'];
 
@@ -9,14 +7,10 @@ export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isAuthRoute = authRoutes.includes(path);
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const sessionCookie = getSessionCookie(req);
 
-  if (isAuthRoute && session?.user.id && !path.startsWith('/u')) {
-    return NextResponse.redirect(
-      new URL(`/u/${session.user.username}`, req.nextUrl),
-    );
+  if (isAuthRoute && sessionCookie) {
+    return NextResponse.redirect(new URL('/', req.nextUrl));
   }
 
   return NextResponse.next();

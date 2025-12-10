@@ -1,4 +1,5 @@
 import { formatDate } from 'date-fns';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Suspense } from 'react';
@@ -13,6 +14,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
+import { auth } from '@/lib/auth';
 import { getAuthor, getDrafts } from '../_lib/data';
 
 export default function UserDraftsPage({
@@ -41,17 +43,21 @@ async function UserDrafts({
   const { username } = await params;
   const { q } = await searchParams;
 
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
   const { author, authorError } = await getAuthor(username);
 
   if (authorError?.status === 404 || !author) {
     notFound();
   }
 
-  const { drafts, draftsError } = await getDrafts(username, q);
-
-  if (draftsError?.status === 403 || draftsError?.status === 401) {
+  if (session?.user.username !== author.username) {
     redirect(`/u/${author.username}`);
   }
+
+  const { drafts } = await getDrafts(q);
 
   if (!drafts || drafts.length === 0) {
     return (

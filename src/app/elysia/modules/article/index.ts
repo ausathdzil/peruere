@@ -22,7 +22,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .post(
     '',
     async ({ body, user }) => {
-      return await Article.createArticle(body, user.username ?? '');
+      return await Article.createArticle(body, user?.username);
     },
     {
       auth: true,
@@ -54,12 +54,14 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   })
   .get(
     '/:publicId',
-    async ({ params: { publicId } }) => {
-      return await Article.getArticle(publicId);
+    async ({ params: { publicId }, user }) => {
+      return await Article.getArticle(publicId, user?.id);
     },
     {
+      auth: true,
       response: {
         200: 'Article',
+        403: ArticleModel.articleInvalid,
         404: ArticleModel.articleInvalid,
       },
     },
@@ -67,7 +69,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .patch(
     '/:publicId',
     async ({ params: { publicId }, body, user }) => {
-      return await Article.updateArticle(publicId, body, user.id);
+      return await Article.updateArticle(publicId, body, user?.id);
     },
     {
       auth: true,
@@ -75,6 +77,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
       response: {
         200: 'Article',
         401: ArticleModel.articleInvalid,
+        403: ArticleModel.articleInvalid,
         404: ArticleModel.articleInvalid,
       },
     },
@@ -82,13 +85,14 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .delete(
     '/:publicId',
     async ({ params: { publicId }, user }) => {
-      return await Article.deleteArticle(publicId, user.id);
+      return await Article.deleteArticle(publicId, user?.id);
     },
     {
       auth: true,
       response: {
         200: ArticleModel.articleInvalid,
         401: ArticleModel.articleInvalid,
+        403: ArticleModel.articleInvalid,
         404: ArticleModel.articleInvalid,
       },
     },
@@ -96,11 +100,11 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
   .get(
     '/drafts',
     async ({ query, user }) => {
-      return await Article.getDrafts(query, user.id);
+      return await Article.getDrafts(query, user?.id);
     },
     {
       auth: true,
-      query: t.Omit(ArticleModel.articlesQuery, ['status', 'authorId']),
+      query: t.Pick(ArticleModel.articlesQuery, ['q']),
       response: {
         200: t.Array(Ref(ArticleModel.articleResponse)),
         401: ArticleModel.articleInvalid,

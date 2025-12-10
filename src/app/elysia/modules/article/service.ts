@@ -3,16 +3,23 @@ import { NotFoundError } from 'elysia';
 
 import { db } from '@/db';
 import { articles, user } from '@/db/schema';
+import type { auth } from '@/lib/auth';
 import { slugify } from '@/lib/utils';
 import { AuthError } from '../auth';
 import { Author } from '../author/service';
 import type { ArticleModel } from './model';
 
+type User = (typeof auth.$Infer.Session)['user'];
+
 export abstract class Article {
   static async createArticle(
     { title, content, status, coverImage }: ArticleModel.CreateArticleBody,
-    username: string,
+    username: User['username'],
   ) {
+    if (!username) {
+      throw new AuthError('You are not allowed to perform this action');
+    }
+
     const author = await Author.getAuthor(username);
 
     const [article] = await db
@@ -81,7 +88,7 @@ export abstract class Article {
       )) satisfies Array<ArticleModel.ArticleResponse>;
   }
 
-  static async getArticle(publicId: string) {
+  static async getArticle(publicId: string, userId: User['id'] | undefined) {
     const [article] = await db
       .select({
         publicId: articles.publicId,
@@ -111,8 +118,8 @@ export abstract class Article {
       throw new NotFoundError('Article not found');
     }
 
-    if (article.status !== 'published') {
-      throw new NotFoundError('Article not found');
+    if (article.status !== 'published' && article.authorId !== userId) {
+      throw new AuthError('You are not allowed to access this resource', 403);
     }
 
     return article satisfies ArticleModel.ArticleResponse;
@@ -126,13 +133,13 @@ export abstract class Article {
       status: articleStatus,
       coverImage,
     }: ArticleModel.UpdateArticleBody,
-    userId: string,
+    userId: User['id'] | undefined,
   ) {
-    const article = await Article.getArticle(publicId);
-
-    if (article.authorId !== userId) {
-      throw new AuthError('You are not allowed to modify this article');
+    if (!userId) {
+      throw new AuthError('You are not allowed to perform this action');
     }
+
+    const article = await Article.getArticle(publicId, userId);
 
     const payload: Partial<ArticleModel.UpdateArticleBody> = {};
 
@@ -182,31 +189,29 @@ export abstract class Article {
     } satisfies ArticleModel.ArticleResponse;
   }
 
-  static async deleteArticle(publicId: string, userId: string) {
-    const article = await Article.getArticle(publicId);
-
-    if (article.authorId !== userId) {
-      throw new AuthError('You are not allowed to delete this article');
+  static async deleteArticle(publicId: string, userId: User['id'] | undefined) {
+    if (!userId) {
+      throw new AuthError('You are not allowed to perform this action');
     }
 
-    await db.delete(articles).where(eq(articles.publicId, publicId));
+    const article = await Article.getArticle(publicId, userId);
+
+    await db.delete(articles).where(eq(articles.publicId, article.publicId));
 
     return { message: 'Article deleted successfully' };
   }
 
   static async getDrafts(
-    { username, q }: Omit<ArticleModel.ArticlesQuery, 'status' | 'authorId'>,
-    userId: string,
+    { q }: Pick<ArticleModel.ArticlesQuery, 'q'>,
+    userId: User['id'] | undefined,
   ) {
-    const author = await Author.getAuthor(username ?? '');
-
-    if (author.id !== userId) {
-      throw new AuthError('You are not allowed to access this resource', 403);
+    if (!userId) {
+      throw new AuthError('You are not allowed to access this resource');
     }
 
     return (await Article.getArticles({
       status: 'draft',
-      authorId: author.id,
+      authorId: userId,
       q,
     })) satisfies Array<ArticleModel.ArticleResponse>;
   }
