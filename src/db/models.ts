@@ -22,6 +22,7 @@ export const db = {
         status: t.Optional(
           t.UnionEnum(['draft', 'published', 'archived'], {
             error: 'Status must be either draft, published, or archived',
+            default: undefined,
           }),
         ),
       }),
