@@ -27,11 +27,6 @@ export function SearchInput({
           inputRef.current.focus();
         }
       }
-
-      if (e.key === 'esc') {
-        e.preventDefault();
-        setQ(null);
-      }
     };
 
     document.addEventListener('keydown', down);
@@ -39,7 +34,7 @@ export function SearchInput({
     return () => {
       document.removeEventListener('keydown', down);
     };
-  }, [setQ]);
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQ(
@@ -50,9 +45,13 @@ export function SearchInput({
     );
   };
 
-  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setQ({ q: e.currentTarget.value });
+    }
+
+    if (e.key === 'Escape' && q) {
+      setQ(null);
     }
   };
 
@@ -63,16 +62,15 @@ export function SearchInput({
       </InputGroupAddon>
       <InputGroupInput
         aria-label="Search"
-        autoCapitalize="off"
-        autoComplete="off"
+        autoCorrect="on"
         className={className}
         name="q"
         onBlur={() => setIsFocused(false)}
         onChange={handleSearch}
         onFocus={() => setIsFocused(true)}
-        onKeyDown={handleEnter}
+        onKeyDown={handleKeyDown}
         ref={inputRef}
-        spellCheck="false"
+        spellCheck="true"
         type="search"
         value={q}
         {...props}

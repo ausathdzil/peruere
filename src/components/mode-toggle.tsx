@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-export function ModeToggle() {
+export function ModeToggle(props: React.ComponentProps<typeof Button>) {
   const { setTheme } = useTheme();
 
   return (
@@ -22,6 +22,7 @@ export function ModeToggle() {
           size="icon-sm"
           title="Toggle theme"
           variant="ghost"
+          {...props}
         >
           <SunIcon className="dark:-rotate-90 rotate-0 scale-100 dark:scale-0" />
           <MoonIcon className="absolute rotate-90 scale-0 dark:rotate-0 dark:scale-100" />

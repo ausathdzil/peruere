@@ -1,8 +1,6 @@
-import type { ComponentProps } from 'react';
-
 import { cn } from '@/lib/utils';
 
-export function Title({ className, ...props }: ComponentProps<'h1'>) {
+export function Title({ className, ...props }: React.ComponentProps<'h1'>) {
   return (
     <h1
       className={cn(
@@ -14,7 +12,7 @@ export function Title({ className, ...props }: ComponentProps<'h1'>) {
   );
 }
 
-export function Heading({ className, ...props }: ComponentProps<'h2'>) {
+export function Heading({ className, ...props }: React.ComponentProps<'h2'>) {
   return (
     <h2
       className={cn(
@@ -26,7 +24,10 @@ export function Heading({ className, ...props }: ComponentProps<'h2'>) {
   );
 }
 
-export function Subheading({ className, ...props }: ComponentProps<'h3'>) {
+export function Subheading({
+  className,
+  ...props
+}: React.ComponentProps<'h3'>) {
   return (
     <h3
       className={cn(
@@ -38,14 +39,14 @@ export function Subheading({ className, ...props }: ComponentProps<'h3'>) {
   );
 }
 
-export function Text({ className, ...props }: ComponentProps<'p'>) {
+export function Text({ className, ...props }: React.ComponentProps<'p'>) {
   return <p className={cn('not-first:mt-6 leading-7', className)} {...props} />;
 }
 
 export function Blockquote({
   className,
   ...props
-}: ComponentProps<'blockquote'>) {
+}: React.ComponentProps<'blockquote'>) {
   return (
     <blockquote
       className={cn('mt-6 border-primary/50 border-l-2 pl-6', className)}
@@ -54,7 +55,7 @@ export function Blockquote({
   );
 }
 
-export function List({ className, ...props }: ComponentProps<'ul'>) {
+export function List({ className, ...props }: React.ComponentProps<'ul'>) {
   return (
     <ul
       className={cn('my-6 ml-6 list-disc [&>li]:mt-2', className)}
@@ -63,17 +64,17 @@ export function List({ className, ...props }: ComponentProps<'ul'>) {
   );
 }
 
-export function Lead({ className, ...props }: ComponentProps<'p'>) {
+export function Lead({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <p className={cn('text-muted-foreground text-xl', className)} {...props} />
   );
 }
 
-export function Large({ className, ...props }: ComponentProps<'div'>) {
+export function Large({ className, ...props }: React.ComponentProps<'div'>) {
   return <div className={cn('font-semibold text-lg', className)} {...props} />;
 }
 
-export function Small({ className, ...props }: ComponentProps<'small'>) {
+export function Small({ className, ...props }: React.ComponentProps<'small'>) {
   return (
     <small
       className={cn('font-medium text-sm leading-none', className)}
@@ -82,7 +83,7 @@ export function Small({ className, ...props }: ComponentProps<'small'>) {
   );
 }
 
-export function Muted({ className, ...props }: ComponentProps<'p'>) {
+export function Muted({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <p className={cn('text-muted-foreground text-sm', className)} {...props} />
   );
