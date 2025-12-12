@@ -10,7 +10,7 @@ export default async function proxy(req: NextRequest) {
   const sessionCookie = getSessionCookie(req);
 
   if (isAuthRoute && sessionCookie) {
-    return NextResponse.redirect(new URL('/u', req.nextUrl));
+    return NextResponse.redirect(new URL('/', req.nextUrl));
   }
 
   return NextResponse.next();

@@ -1,6 +1,6 @@
 'use server';
 
-import { updateTag } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { headers } from 'next/headers';
 
 import type { ArticleModel } from '@/app/elysia/modules/article/model';
@@ -25,15 +25,16 @@ export async function updateArticle(
     return {
       error: {
         status: error.status || 500,
-        message: error.value?.message || 'An unknown error occurred',
+        message:
+          error.value?.message || 'An unknown error occurred, please try again',
       },
     };
   }
 
   if (data) {
-    updateTag('articles');
-    updateTag(`articles-${data.author?.username}`);
-    updateTag(`article-${data.publicId}`);
-    updateTag('drafts');
+    revalidateTag('articles', 'max');
+    revalidateTag(`articles-${data.author?.username}`, 'max');
+    revalidateTag(`article-${data.publicId}`, 'max');
+    revalidateTag('drafts', 'max');
   }
 }

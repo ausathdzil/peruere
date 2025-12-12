@@ -1,7 +1,7 @@
 import { formatDate } from 'date-fns';
 import { headers } from 'next/headers';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { SearchInput } from '@/components/search-input';
@@ -54,7 +54,7 @@ async function UserDrafts({
   }
 
   if (session?.user.username !== author.username) {
-    redirect(`/u/${author.username}`);
+    notFound();
   }
 
   const { drafts } = await getDrafts(q);

@@ -1,6 +1,6 @@
 'use server';
 
-import { updateTag } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -26,10 +26,15 @@ export async function createDraft() {
     };
   }
 
-  if (data?.author?.username) {
-    updateTag(`drafts-${data.author.username}`);
+  if (data.author?.username) {
+    revalidateTag('drafts', 'max');
     redirect(`/u/${data.author.username}/articles/${data.publicId}/edit`);
   }
 
-  return { error: { status: 500, message: 'Unable to create draft' } };
+  return {
+    error: {
+      status: 500,
+      message: 'Unable to create draft, please try again',
+    },
+  };
 }
