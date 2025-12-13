@@ -22,20 +22,29 @@ function Header() {
     <header className="sticky top-0 bg-background pt-safe-top">
       <div className="mx-auto flex w-full max-w-6xl items-center gap-4 p-4">
         <nav className="flex flex-1 items-center gap-4">
-          <Button asChild size="sm" variant="ghost">
-            <Link href="/">
-              <Image
-                alt="Peruere"
-                className="dark:invert"
-                height={16}
-                src={pereure}
-                width={16}
-              />
-              Peruere
-            </Link>
+          <Button
+            className="gap-2"
+            nativeButton={false}
+            render={<Link href="/" />}
+            size="sm"
+            variant="ghost"
+          >
+            <Image
+              alt="Peruere"
+              className="dark:invert"
+              height={12}
+              src={pereure}
+              width={12}
+            />
+            Peruere
           </Button>
-          <Button asChild size="sm" variant="ghost">
-            <Link href="/explore">Explore</Link>
+          <Button
+            nativeButton={false}
+            render={<Link href="/explore" />}
+            size="sm"
+            variant="ghost"
+          >
+            Explore
           </Button>
           <Suspense
             fallback={

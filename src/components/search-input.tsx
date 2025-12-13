@@ -1,6 +1,7 @@
 'use client';
 
-import { SearchIcon } from 'lucide-react';
+import { Search01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { debounce, useQueryStates } from 'nuqs';
 import { useEffect, useRef, useState } from 'react';
 
@@ -58,7 +59,7 @@ export function SearchInput({
   return (
     <InputGroup>
       <InputGroupAddon>
-        <SearchIcon />
+        <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
       </InputGroupAddon>
       <InputGroupInput
         aria-label="Search"
@@ -77,14 +78,12 @@ export function SearchInput({
       />
       {!isFocused && !q && (
         <InputGroupAddon align="inline-end">
-          <Kbd className="hidden md:flex">
-            {isMac ? '⌘' : 'Ctrl'}&nbsp;+&nbsp;K
-          </Kbd>
+          <Kbd>{isMac ? '⌘' : 'Ctrl'}&nbsp;+&nbsp;K</Kbd>
         </InputGroupAddon>
       )}
       {q && (
         <InputGroupAddon align="inline-end">
-          <Kbd className="hidden md:flex">Esc</Kbd>
+          <Kbd>Esc</Kbd>
         </InputGroupAddon>
       )}
     </InputGroup>

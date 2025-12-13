@@ -37,7 +37,6 @@ export function SignOutButton(props: React.ComponentProps<typeof Button>) {
       disabled={loading}
       onClick={handleSignOut}
       size="pill-sm"
-      type="button"
       variant="destructive"
       {...props}
     >

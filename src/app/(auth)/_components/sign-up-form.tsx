@@ -1,7 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircleIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import {
+  AlertCircleIcon,
+  ViewIcon,
+  ViewOffSlashIcon,
+} from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
@@ -27,6 +32,7 @@ import {
 } from '@/components/ui/input-group';
 import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/lib/auth-client';
+import { cn } from '@/lib/utils';
 
 const signUpFormSchema = z.object({
   name: z
@@ -75,7 +81,10 @@ const signUpFormSchema = z.object({
 
 type SignUpFieldValues = z.infer<typeof signUpFormSchema>;
 
-export function SignUpForm() {
+export function SignUpForm({
+  className,
+  ...props
+}: React.ComponentProps<'form'>) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const id = useId();
@@ -127,8 +136,8 @@ export function SignUpForm() {
       onResponse: () => {
         setLoading(false);
       },
-      onSuccess: () => {
-        router.push(`/u/${values.username}`);
+      onSuccess: (ctx) => {
+        router.push(`/u/${ctx.data.user.username}`);
       },
       onError: (ctx) => {
         if (ctx.error.code === 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL') {
@@ -149,8 +158,9 @@ export function SignUpForm() {
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className={cn('flex flex-col gap-6', className)}
       onSubmit={form.handleSubmit(handleSubmit)}
+      {...props}
     >
       <FieldGroup>
         <Controller
@@ -255,7 +265,11 @@ export function SignUpForm() {
                     type="button"
                     variant="ghost"
                   >
-                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                    {showPassword ? (
+                      <HugeiconsIcon icon={ViewOffSlashIcon} strokeWidth={2} />
+                    ) : (
+                      <HugeiconsIcon icon={ViewIcon} strokeWidth={2} />
+                    )}
                   </InputGroupButton>
                 </InputGroupAddon>
               </InputGroup>
@@ -273,7 +287,7 @@ export function SignUpForm() {
           </FieldDescription>
           {form.formState.errors.root && (
             <Alert variant="destructive">
-              <AlertCircleIcon />
+              <HugeiconsIcon icon={AlertCircleIcon} strokeWidth={2} />
               <AlertTitle>{form.formState.errors.root.message}</AlertTitle>
             </Alert>
           )}

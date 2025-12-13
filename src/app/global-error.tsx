@@ -1,6 +1,7 @@
 'use client';
 
-import { CloudAlertIcon } from 'lucide-react';
+import { AlertCircleIcon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 
 import {
   Empty,
@@ -23,7 +24,7 @@ export default function GlobalError({
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <CloudAlertIcon />
+                <HugeiconsIcon icon={AlertCircleIcon} strokeWidth={2} />
               </EmptyMedia>
             </EmptyHeader>
             <EmptyContent>

@@ -1,6 +1,11 @@
 'use client';
 
-import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
+import {
+  ComputerIcon,
+  Moon02Icon,
+  Sun02Icon,
+} from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
@@ -16,29 +21,39 @@ export function ModeToggle(props: React.ComponentProps<typeof Button>) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          aria-label="Toggle theme"
-          size="icon-sm"
-          title="Toggle theme"
-          variant="ghost"
-          {...props}
-        >
-          <SunIcon className="dark:-rotate-90 rotate-0 scale-100 dark:scale-0" />
-          <MoonIcon className="absolute rotate-90 scale-0 dark:rotate-0 dark:scale-100" />
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            aria-label="Toggle theme"
+            size="icon-sm"
+            title="Toggle theme"
+            variant="ghost"
+            {...props}
+          />
+        }
+      >
+        <HugeiconsIcon
+          className="dark:-rotate-90 rotate-0 scale-100 dark:scale-0"
+          icon={Sun02Icon}
+          strokeWidth={2}
+        />
+        <HugeiconsIcon
+          className="absolute rotate-90 scale-0 dark:rotate-0 dark:scale-100"
+          icon={Moon02Icon}
+          strokeWidth={2}
+        />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme('light')}>
-          <SunIcon />
+          <HugeiconsIcon icon={Sun02Icon} strokeWidth={2} />
           Light
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('dark')}>
-          <MoonIcon />
+          <HugeiconsIcon icon={Moon02Icon} strokeWidth={2} />
           Dark
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('system')}>
-          <MonitorIcon />
+          <HugeiconsIcon icon={ComputerIcon} strokeWidth={2} />
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

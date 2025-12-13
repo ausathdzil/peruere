@@ -1,4 +1,5 @@
-import { HouseIcon } from 'lucide-react';
+import { Home01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
@@ -67,11 +68,14 @@ async function Header({ params }: { params: Promise<{ username: string }> }) {
           username={username}
         />
         <div className="ml-auto flex items-center gap-2">
-          <Button asChild size="sm" variant="ghost">
-            <Link href="/">
-              <HouseIcon />
-              Home
-            </Link>
+          <Button
+            nativeButton={false}
+            render={<Link href="/" />}
+            size="sm"
+            variant="ghost"
+          >
+            <HugeiconsIcon icon={Home01Icon} strokeWidth={2} />
+            Home
           </Button>
           {session?.user.username === author.username && (
             <CreateArticleButton />

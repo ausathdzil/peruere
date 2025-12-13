@@ -23,19 +23,21 @@ export function UserNav({ user, username, className, ...props }: UserNavProps) {
   return (
     <div className={cn('flex items-center gap-2', className)} {...props}>
       <Button
-        asChild
+        nativeButton={false}
+        render={<Link href={`/u/${username}`} />}
         size="pill-sm"
         variant={isArticlesPage ? 'secondary' : 'ghost'}
       >
-        <Link href={`/u/${username}`}>Articles</Link>
+        Articles
       </Button>
       {user?.username === username && (
         <Button
-          asChild
+          nativeButton={false}
+          render={<Link href={`/u/${username}/drafts`} />}
           size="pill-sm"
           variant={isDraftsPage ? 'secondary' : 'ghost'}
         >
-          <Link href={`/u/${username}/drafts`}>Drafts</Link>
+          Drafts
         </Button>
       )}
     </div>

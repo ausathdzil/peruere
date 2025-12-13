@@ -1,7 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircleIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
+import {
+  AlertCircleIcon,
+  ViewIcon,
+  ViewOffSlashIcon,
+} from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
@@ -75,8 +80,8 @@ export function SignInForm({
       onResponse: () => {
         setLoading(false);
       },
-      onSuccess: () => {
-        router.push(`/u/${values.username}`);
+      onSuccess: (ctx) => {
+        router.push(`/u/${ctx.data.user.username}`);
       },
       onError: (ctx) => {
         form.setError('root', {
@@ -148,7 +153,11 @@ export function SignInForm({
                     type="button"
                     variant="ghost"
                   >
-                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                    {showPassword ? (
+                      <HugeiconsIcon icon={ViewOffSlashIcon} strokeWidth={2} />
+                    ) : (
+                      <HugeiconsIcon icon={ViewIcon} strokeWidth={2} />
+                    )}
                   </InputGroupButton>
                 </InputGroupAddon>
               </InputGroup>
@@ -185,7 +194,7 @@ export function SignInForm({
           </FieldDescription>
           {form.formState.errors.root && (
             <Alert variant="destructive">
-              <AlertCircleIcon />
+              <HugeiconsIcon icon={AlertCircleIcon} strokeWidth={2} />
               <AlertTitle>{form.formState.errors.root.message}</AlertTitle>
             </Alert>
           )}

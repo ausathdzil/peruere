@@ -1,6 +1,7 @@
 'use client';
 
-import { NotebookPenIcon } from 'lucide-react';
+import { QuillWrite02Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -32,7 +33,11 @@ export function CreateArticleButton(
       variant="ghost"
       {...props}
     >
-      {isPending ? <Spinner /> : <NotebookPenIcon />}
+      {isPending ? (
+        <Spinner />
+      ) : (
+        <HugeiconsIcon icon={QuillWrite02Icon} strokeWidth={2} />
+      )}
       Write
     </Button>
   );

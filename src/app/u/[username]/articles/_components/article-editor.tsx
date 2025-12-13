@@ -4,7 +4,8 @@ import { Placeholder } from '@tiptap/extensions';
 import { Markdown } from '@tiptap/markdown';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { SaveIcon } from 'lucide-react';
+import { FloppyDiskIcon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
@@ -32,16 +33,15 @@ export function ArticleEditor({
     <div className="prose prose-neutral dark:prose-invert mx-auto size-full px-4 py-16">
       {isSaving && (
         <Button
-          asChild
           className="pointer-events-none absolute top-4 left-4 animate-pulse"
           disabled
+          nativeButton={false}
+          render={<div />}
           size="sm"
           variant="ghost"
         >
-          <div>
-            <SaveIcon />
-            Saving…
-          </div>
+          <HugeiconsIcon icon={FloppyDiskIcon} strokeWidth={2} />
+          Saving…
         </Button>
       )}
       <TitleEditor
