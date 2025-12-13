@@ -2,6 +2,7 @@ import { formatDate } from 'date-fns';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
 import { SearchInput } from '@/components/search-input';
@@ -15,6 +16,7 @@ import {
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
 import { auth } from '@/lib/auth';
+import { searchParamsCache } from '@/lib/search-params';
 import { getAuthor, getDrafts } from '../_lib/data';
 
 export default function UserDraftsPage({
@@ -33,15 +35,14 @@ export default function UserDraftsPage({
   );
 }
 
-async function UserDrafts({
-  params,
-  searchParams,
-}: {
+type UserDraftsProps = {
   params: Promise<{ username: string }>;
-  searchParams: Promise<{ q?: string }>;
-}) {
+  searchParams: Promise<SearchParams>;
+};
+
+async function UserDrafts({ params, searchParams }: UserDraftsProps) {
   const { username } = await params;
-  const { q } = await searchParams;
+  const { q } = await searchParamsCache.parse(searchParams);
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -73,18 +74,20 @@ async function UserDrafts({
     <ItemGroup className="w-full list-none gap-4">
       {drafts.map((draft) => (
         <li key={draft.publicId}>
-          <Item asChild>
-            <Link
-              href={`/u/${author.username}/articles/${draft.publicId}/edit`}
-            >
-              <ItemContent>
-                <ItemTitle>{draft.title || 'Untitled Draft'}</ItemTitle>
-                <ItemDescription className="tabular-nums">
-                  Last Updated:{' '}
-                  {formatDate(draft.updatedAt, 'dd MMM yyyy, HH:mm')}
-                </ItemDescription>
-              </ItemContent>
-            </Link>
+          <Item
+            render={
+              <Link
+                href={`/u/${author.username}/articles/${draft.publicId}/edit`}
+              />
+            }
+          >
+            <ItemContent>
+              <ItemTitle>{draft.title}</ItemTitle>
+              <ItemDescription className="tabular-nums">
+                Last Updated:{' '}
+                {formatDate(draft.updatedAt, 'dd MMM yyyy, HH:mm')}
+              </ItemDescription>
+            </ItemContent>
           </Item>
         </li>
       ))}

@@ -1,11 +1,11 @@
 'use client';
 
+import { FloppyDiskIcon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { Placeholder } from '@tiptap/extensions';
 import { Markdown } from '@tiptap/markdown';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { FloppyDiskIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
@@ -106,7 +106,7 @@ function TitleEditor({
       autoCapitalize="on"
       autoComplete="on"
       autoCorrect="on"
-      className="mt-0 mb-[0.888889em] block w-full resize-none overflow-hidden border-0 bg-transparent p-0 font-extrabold text-(--tw-prose-headings) text-4xl leading-[1.11111] focus:outline-none"
+      className="font-(family-name:--font-cal-sans) mt-0 mb-[0.888889em] block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-(--tw-prose-headings) text-4xl leading-[1.11111] focus:outline-none"
       name="title"
       onInput={(e) => {
         const el = e.currentTarget;

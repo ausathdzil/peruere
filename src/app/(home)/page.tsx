@@ -39,15 +39,17 @@ async function Articles() {
     <ItemGroup className="list-none gap-4">
       {articles.map((article) => (
         <li key={article.publicId}>
-          <Item asChild>
-            <Link
-              href={`/u/${article.author?.username}/articles/${article.publicId}`}
-            >
-              <ItemContent>
-                <ItemTitle>{article.title}</ItemTitle>
-                <ItemDescription>{article.excerpt}</ItemDescription>
-              </ItemContent>
-            </Link>
+          <Item
+            render={
+              <Link
+                href={`/u/${article.author?.username}/articles/${article.publicId}`}
+              />
+            }
+          >
+            <ItemContent>
+              <ItemTitle>{article.title}</ItemTitle>
+              <ItemDescription>{article.excerpt}</ItemDescription>
+            </ItemContent>
           </Item>
         </li>
       ))}

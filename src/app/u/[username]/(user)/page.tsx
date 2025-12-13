@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
 import { SearchInput } from '@/components/search-input';
@@ -12,6 +13,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
+import { searchParamsCache } from '@/lib/search-params';
 import { getArticles, getAuthor } from './_lib/data';
 
 export default function UserPage({
@@ -30,15 +32,14 @@ export default function UserPage({
   );
 }
 
-async function Articles({
-  params,
-  searchParams,
-}: {
+type ArticlesProps = {
   params: Promise<{ username: string }>;
-  searchParams: Promise<{ q?: string }>;
-}) {
+  searchParams: Promise<SearchParams>;
+};
+
+async function Articles({ params, searchParams }: ArticlesProps) {
   const { username } = await params;
-  const { q } = await searchParams;
+  const { q } = await searchParamsCache.parse(searchParams);
 
   const { author, authorError } = await getAuthor(username);
 
@@ -62,13 +63,17 @@ async function Articles({
     <ItemGroup className="w-full list-none gap-4">
       {articles.map((article) => (
         <li key={article.publicId}>
-          <Item asChild>
-            <Link href={`/u/${author.username}/articles/${article.publicId}`}>
-              <ItemContent>
-                <ItemTitle>{article.title}</ItemTitle>
-                <ItemDescription>{article.excerpt}</ItemDescription>
-              </ItemContent>
-            </Link>
+          <Item
+            render={
+              <Link
+                href={`/u/${article.author?.username}/articles/${article.publicId}`}
+              />
+            }
+          >
+            <ItemContent>
+              <ItemTitle>{article.title}</ItemTitle>
+              <ItemDescription>{article.excerpt}</ItemDescription>
+            </ItemContent>
           </Item>
         </li>
       ))}

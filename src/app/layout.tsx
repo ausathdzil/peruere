@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Cal_Sans } from 'next/font/google';
 import localFont from 'next/font/local';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
@@ -10,6 +11,12 @@ import { Toaster } from '@/components/ui/sonner';
 const inter = localFont({
   src: './fonts/InterVariable.woff2',
   variable: '--font-inter',
+  display: 'swap',
+});
+
+const calSans = localFont({
+  src: './fonts/CalSans-Semibold.woff2',
+  variable: '--font-cal-sans',
   display: 'swap',
 });
 
@@ -36,7 +43,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(inter.variable, 'font-sans dark:antialiased')}>
+      <body
+        className={cn(
+          inter.variable,
+          calSans.variable,
+          'font-sans dark:antialiased',
+        )}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
