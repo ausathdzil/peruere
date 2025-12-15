@@ -226,7 +226,7 @@ function ContentEditor({
         class: 'focus:outline-none',
       },
     },
-    autofocus: true,
+    autofocus: 'end',
     content,
     contentType: 'markdown',
     onUpdate: ({ editor }) => {

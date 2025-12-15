@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type { SearchParams } from 'nuqs';
 import { Suspense } from 'react';
+
 import { Large, Muted } from '@/components/typography';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
@@ -40,7 +41,9 @@ export default function ProfilePage({ searchParams }: PageProps<'/profile'>) {
       <Suspense fallback={<ProfileSkeleton />}>
         <Profile />
       </Suspense>
-      <StatusToggle className="justify-self-center" />
+      <Suspense fallback={<Skeleton className="h-10 w-[307px]" />}>
+        <StatusToggle className="justify-self-center" />
+      </Suspense>
       <Suspense fallback={<ArticlesSkeleton />}>
         <Articles searchParams={searchParams} />
       </Suspense>
@@ -105,7 +108,7 @@ async function Articles({ searchParams }: ArticlesProps) {
               <Link
                 href={
                   status !== 'published'
-                    ? `/profile/articles/${article.publicId}`
+                    ? `/editor/${article.publicId}`
                     : `/u/${article.author?.username}/articles/${article.slug} `
                 }
               />
@@ -121,17 +124,6 @@ async function Articles({ searchParams }: ArticlesProps) {
     </ItemGroup>
   );
 }
-
-function ArticlesSkeleton() {
-  return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      <Skeleton className="h-[77.85px] w-full" />
-      <Skeleton className="h-[77.85px] w-full" />
-      <Skeleton className="h-[77.85px] w-full" />
-    </div>
-  );
-}
-
 function ProfileSkeleton() {
   return (
     <div className="grid grid-rows-[auto_auto_auto]">
@@ -141,6 +133,16 @@ function ProfileSkeleton() {
         <Skeleton className="h-9 w-40" />
         <Skeleton className="h-7 w-36" />
       </div>
+    </div>
+  );
+}
+
+function ArticlesSkeleton() {
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+      <Skeleton className="h-[77.85px] w-full" />
+      <Skeleton className="h-[77.85px] w-full" />
+      <Skeleton className="h-[77.85px] w-full" />
     </div>
   );
 }
