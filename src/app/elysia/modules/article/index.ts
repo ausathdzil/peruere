@@ -40,7 +40,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
       return await Article.getArticles(query);
     },
     {
-      query: t.Omit(ArticleModel.articlesQuery, ['status', 'authorId']),
+      query: t.Omit(ArticleModel.articlesQuery, ['status']),
       response: {
         200: t.Array(Ref(ArticleModel.articleResponse)),
       },

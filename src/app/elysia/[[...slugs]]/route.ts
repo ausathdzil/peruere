@@ -4,6 +4,7 @@ import Elysia from 'elysia';
 import { article } from '../modules/article';
 import { auth } from '../modules/auth';
 import { author } from '../modules/author';
+import { me } from '../modules/me';
 import { BetterAuthOpenAPI } from '../modules/utils';
 
 export const app = new Elysia({ prefix: '/elysia' })
@@ -21,7 +22,8 @@ export const app = new Elysia({ prefix: '/elysia' })
   )
   .use(auth)
   .use(article)
-  .use(author);
+  .use(author)
+  .use(me);
 
 export const GET = app.fetch;
 export const POST = app.fetch;

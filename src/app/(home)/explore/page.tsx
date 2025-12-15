@@ -58,7 +58,7 @@ async function Articles({ searchParams }: ArticlesProps) {
           <Item
             render={
               <Link
-                href={`/u/${article.author?.username}/articles/${article.publicId}`}
+                href={`/u/${article.author?.username}/articles/${article.slug}`}
               />
             }
           >

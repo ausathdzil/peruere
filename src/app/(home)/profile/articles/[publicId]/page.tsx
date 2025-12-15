@@ -1,13 +1,9 @@
-import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { ArticleEditor } from '@/app/(home)/_components/article-editor';
 import { getArtcileByPublicId } from '@/app/(home)/_lib/data';
-import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 
 export async function generateMetadata({
@@ -31,31 +27,12 @@ export default function EditArticlePage({
 }: PageProps<'/profile/articles/[publicId]'>) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
       <main className="grid flex-1">
         <Suspense fallback={<Spinner className="place-self-center" />}>
           <Article params={params} />
         </Suspense>
       </main>
     </div>
-  );
-}
-
-function Header() {
-  return (
-    <header className="sticky top-0 z-10 border-b bg-background pt-safe-top">
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-4 p-4">
-        <Button
-          nativeButton={false}
-          render={<Link href="/profile" />}
-          size="sm"
-          variant="ghost"
-        >
-          <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} />
-          Back
-        </Button>
-      </div>
-    </header>
   );
 }
 
