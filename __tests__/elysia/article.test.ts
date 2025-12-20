@@ -2,6 +2,7 @@ import {
   afterAll,
   afterEach,
   beforeAll,
+  beforeEach,
   describe,
   expect,
   test,
@@ -11,6 +12,7 @@ import { elysia } from '@/lib/eden';
 import {
   cleanupTestArticle,
   cleanupTestUser,
+  createTestArticle,
   createTestUser,
   type TestUser,
 } from '../utils';
@@ -64,14 +66,7 @@ describe('Article controller', () => {
   });
 
   describe('Get all articles', () => {
-    test('should return an array of articles', async () => {
-      const { data, status } = await elysia.articles.get();
-
-      expect(status).toBe(200);
-      expect(Array.isArray(data)).toBe(true);
-    });
-
-    test('should return only published articles', async () => {
+    test('should return 200 and an array of published articles', async () => {
       const { data, status } = await elysia.articles.get();
 
       expect(status).toBe(200);
@@ -87,13 +82,32 @@ describe('Article controller', () => {
     });
   });
 
-  describe.todo('Get article by publicId', () => {
+  describe('Get article by publicId', () => {
+    let testArticle: Awaited<ReturnType<typeof createTestArticle>>;
+
+    beforeEach(async () => {
+      testArticle = await createTestArticle(testUser.headers);
+    });
+
+    afterEach(async () => {
+      await cleanupTestArticle(testArticle?.publicId ?? '');
+    });
+
     test('should return 404 if article not found', async () => {
       const { status } = await elysia
         .articles({ publicId: 'non-existent' })
         .get();
 
       expect(status).toBe(404);
+    });
+
+    test('should return 200 and the article', async () => {
+      const { data, status } = await elysia
+        .articles({ publicId: testArticle?.publicId ?? '' })
+        .get();
+
+      expect(status).toBe(200);
+      expect(data).toBeDefined();
     });
   });
 });

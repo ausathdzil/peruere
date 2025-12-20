@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { articles, user } from '@/db/schema';
 import { auth } from '@/lib/auth';
+import { elysia } from '@/lib/eden';
 
 export type TestUser = {
   data: {
@@ -40,6 +41,19 @@ export async function createTestUser() {
       cookie: res.headers.getSetCookie().join('; '),
     },
   };
+}
+
+export async function createTestArticle(headers: HeadersInit) {
+  const { data } = await elysia.articles.post(
+    {
+      title: 'Test article',
+      content: 'Test content',
+      status: 'published',
+    },
+    { headers },
+  );
+
+  return data;
 }
 
 export async function cleanupTestUser(username: string) {
