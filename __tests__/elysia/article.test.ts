@@ -14,10 +14,9 @@ import {
   cleanupTestUser,
   createTestArticle,
   createTestUser,
-  type TestUser,
 } from '../utils';
 
-let testUser: TestUser;
+let testUser: Awaited<ReturnType<typeof createTestUser>>;
 
 beforeAll(async () => {
   testUser = await createTestUser();
@@ -27,7 +26,7 @@ afterAll(async () => {
   await cleanupTestUser(testUser.data.username);
 });
 
-describe('Article controller', () => {
+describe('Article', () => {
   describe('Create article', () => {
     const createdArticles: string[] = [];
 
@@ -38,7 +37,7 @@ describe('Article controller', () => {
       createdArticles.length = 0;
     });
 
-    test('should return 401 if not authenticated', async () => {
+    test('return 401 if not authenticated', async () => {
       const { status } = await elysia.articles.post({
         title: 'Test article',
         content: 'Test content',
@@ -48,7 +47,7 @@ describe('Article controller', () => {
       expect(status).toBe(401);
     });
 
-    test('should return 201 and create an article', async () => {
+    test('return 201 and create an article', async () => {
       const { data, status } = await elysia.articles.post(
         {
           title: 'Test article',
@@ -66,11 +65,11 @@ describe('Article controller', () => {
   });
 
   describe('Get all articles', () => {
-    test('should return 200 and an array of published articles', async () => {
+    test('return 200 and an array of published articles', async () => {
       const { data, status } = await elysia.articles.get();
 
       expect(status).toBe(200);
-      expect(Array.isArray(data)).toBe(true);
+      expect(data).toBeInstanceOf(Array);
 
       if (data?.length === 0) {
         return;
@@ -90,10 +89,10 @@ describe('Article controller', () => {
     });
 
     afterEach(async () => {
-      await cleanupTestArticle(testArticle?.publicId ?? '');
+      await cleanupTestArticle(testArticle.publicId);
     });
 
-    test('should return 404 if article not found', async () => {
+    test('return 404 if article not found', async () => {
       const { status } = await elysia
         .articles({ publicId: 'non-existent' })
         .get();
@@ -101,13 +100,57 @@ describe('Article controller', () => {
       expect(status).toBe(404);
     });
 
-    test('should return 200 and the article', async () => {
+    test('return 200 and the article', async () => {
       const { data, status } = await elysia
-        .articles({ publicId: testArticle?.publicId ?? '' })
+        .articles({ publicId: testArticle.publicId })
         .get();
 
       expect(status).toBe(200);
-      expect(data).toBeDefined();
+      expect(data).not.toBeNull();
+    });
+  });
+
+  describe('Update article', () => {
+    let testArticle: Awaited<ReturnType<typeof createTestArticle>>;
+
+    beforeEach(async () => {
+      testArticle = await createTestArticle(testUser.headers);
+    });
+
+    afterEach(async () => {
+      await cleanupTestArticle(testArticle.publicId);
+    });
+
+    test('return 404 if article does not exist', async () => {
+      const { status } = await elysia
+        .articles({ publicId: 'non-existent' })
+        .patch({ title: 'Test article' }, { headers: testUser.headers });
+
+      expect(status).toBe(404);
+    });
+
+    test('return 401 if not authenticated', async () => {
+      const { status } = await elysia
+        .articles({ publicId: testArticle.publicId })
+        .patch({ title: 'Test article' });
+
+      expect(status).toBe(401);
+    });
+
+    test('return 200 and update the article', async () => {
+      const body = {
+        title: 'Test update',
+        content: 'Test content',
+        coverImage: null,
+        status: 'draft' as 'draft' | 'published' | 'archived' | undefined,
+      };
+
+      const { data, status } = await elysia
+        .articles({ publicId: testArticle.publicId })
+        .patch(body, { headers: testUser.headers });
+
+      expect(status).toBe(200);
+      expect(data).toMatchObject(body);
     });
   });
 });

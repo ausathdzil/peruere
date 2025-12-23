@@ -3,16 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { articles, user } from '@/db/schema';
 import { auth } from '@/lib/auth';
-import { elysia } from '@/lib/eden';
-
-export type TestUser = {
-  data: {
-    username: string;
-    email: string;
-    password: string;
-  };
-  headers: HeadersInit;
-};
+import { slugify } from '@/lib/utils';
 
 function generateUniqueId(): string {
   const bytes = new Uint8Array(10);
@@ -44,16 +35,31 @@ export async function createTestUser() {
 }
 
 export async function createTestArticle(headers: HeadersInit) {
-  const { data } = await elysia.articles.post(
-    {
-      title: 'Test article',
-      content: 'Test content',
-      status: 'published',
-    },
-    { headers },
-  );
+  const session = await auth.api.getSession({ headers });
 
-  return data;
+  if (!session) {
+    throw new Error('Session not found');
+  }
+
+  const title = 'Test article';
+  const content = 'Test content';
+  const status = 'published';
+  const coverImage = 'https://example.com';
+
+  const [article] = await db
+    .insert(articles)
+    .values({
+      title: title,
+      slug: slugify(title),
+      content: content,
+      excerpt: content,
+      status,
+      coverImage,
+      authorId: session.user.id,
+    })
+    .returning();
+
+  return article;
 }
 
 export async function cleanupTestUser(username: string) {
