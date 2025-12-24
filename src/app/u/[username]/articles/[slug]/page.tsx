@@ -1,6 +1,6 @@
+import { generateHTML } from '@tiptap/html';
 import { Markdown, MarkdownManager } from '@tiptap/markdown';
 import StarterKit from '@tiptap/starter-kit';
-import { renderToHTMLString } from '@tiptap/static-renderer/pm/html-string';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
@@ -40,7 +40,15 @@ type ArticleProps = {
   params: Promise<{ username: string; slug: string }>;
 };
 
-const extensions = [StarterKit, Markdown];
+const extensions = [
+  StarterKit,
+  Markdown.configure({
+    markedOptions: {
+      gfm: true,
+    },
+  }),
+];
+
 const markdownManager = new MarkdownManager({ extensions });
 
 async function Article({ params }: ArticleProps) {
@@ -52,7 +60,7 @@ async function Article({ params }: ArticleProps) {
   }
 
   const content = markdownManager.parse(article.content ?? '');
-  const html = renderToHTMLString({ content, extensions });
+  const html = generateHTML(content, extensions);
 
   return (
     <article className="prose prose-neutral dark:prose-invert mx-auto size-full px-4 py-16">

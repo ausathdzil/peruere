@@ -33,7 +33,7 @@ export function ArticleEditor({
   const isSaving = titleSaving || contentSaving;
 
   return (
-    <div className="prose prose-neutral dark:prose-invert mx-auto size-full px-4 py-16">
+    <div className="prose prose-neutral dark:prose-invert relative mx-auto size-full p-8">
       {isSaving && (
         <Button
           className="pointer-events-none absolute right-4 bottom-4 animate-pulse"
@@ -192,6 +192,10 @@ function ContentEditor({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
+        codeBlock: {
+          enableTabIndentation: true,
+          tabSize: 2,
+        },
         heading: { levels: [1, 2, 3] },
       }),
       Markdown.configure({
