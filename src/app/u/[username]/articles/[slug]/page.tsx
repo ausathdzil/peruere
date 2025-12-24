@@ -1,6 +1,12 @@
-import { generateHTML } from '@tiptap/html';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { Markdown, MarkdownManager } from '@tiptap/markdown';
 import StarterKit from '@tiptap/starter-kit';
+import {
+  renderToHTMLString,
+  serializeChildrenToHTMLString,
+} from '@tiptap/static-renderer/pm/html-string';
+import { toHtml } from 'hast-util-to-html';
+import { common, createLowlight } from 'lowlight';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
@@ -40,8 +46,11 @@ type ArticleProps = {
   params: Promise<{ username: string; slug: string }>;
 };
 
+const lowlight = createLowlight(common);
+
 const extensions = [
-  StarterKit,
+  StarterKit.configure({ codeBlock: false }),
+  CodeBlockLowlight.configure({ lowlight }),
   Markdown.configure({
     markedOptions: {
       gfm: true,
@@ -50,6 +59,23 @@ const extensions = [
 ];
 
 const markdownManager = new MarkdownManager({ extensions });
+
+function highlightCode(code: string, language: string | null) {
+  if (!language) {
+    const result = lowlight.highlightAuto(code);
+    return toHtml(result);
+  }
+
+  try {
+    const result = lowlight.highlight(language, code);
+    return toHtml(result);
+  } catch {
+    return code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+}
 
 async function Article({ params }: ArticleProps) {
   const { username, slug } = await params;
@@ -60,10 +86,24 @@ async function Article({ params }: ArticleProps) {
   }
 
   const content = markdownManager.parse(article.content ?? '');
-  const html = generateHTML(content, extensions);
+  const html = renderToHTMLString({
+    content,
+    extensions,
+    options: {
+      nodeMapping: {
+        codeBlock({ node, children }) {
+          const language = node.attrs?.language || null;
+          const code = serializeChildrenToHTMLString(children);
+          const highlighted = highlightCode(code, language);
+          const langClass = language ? ` class="language-${language}"` : '';
+          return `<pre><code${langClass}>${highlighted}</code></pre>`;
+        },
+      },
+    },
+  });
 
   return (
-    <article className="prose prose-neutral dark:prose-invert mx-auto size-full px-4 py-16">
+    <article className="prose prose-neutral dark:prose-invert mx-auto size-full p-8">
       <h1>{article.title}</h1>
       {/** biome-ignore lint/security/noDangerouslySetInnerHtml: Sanitized HTML */}
       <div dangerouslySetInnerHTML={{ __html: html }} />

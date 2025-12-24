@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Fira_Code, Libre_Franklin } from 'next/font/google';
+import { Libre_Franklin } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 import { ThemeProvider } from '@/components/theme-provider';
@@ -11,13 +11,6 @@ const libreFranklin = Libre_Franklin({
   subsets: ['latin'],
   weight: ['500', '600', '700', '800'],
   variable: '--font-libre-franklin',
-  display: 'swap',
-});
-
-const firaCode = Fira_Code({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-fira-code',
   display: 'swap',
 });
 
@@ -45,11 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={cn(
-          libreFranklin.variable,
-          firaCode.variable,
-          'font-sans dark:antialiased',
-        )}
+        className={cn(libreFranklin.variable, 'font-sans dark:antialiased')}
       >
         <ThemeProvider
           attribute="class"

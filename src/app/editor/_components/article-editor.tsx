@@ -3,10 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FloppyDiskIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { Placeholder } from '@tiptap/extensions';
 import { Markdown } from '@tiptap/markdown';
-import { EditorContent, useEditor } from '@tiptap/react';
+import { EditorContent, ReactNodeViewRenderer, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { common, createLowlight } from 'lowlight';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -15,6 +17,7 @@ import * as z from 'zod/mini';
 
 import { Button } from '@/components/ui/button';
 import { updateArticle } from '../_lib/actions';
+import { CodeBlock } from './code-block';
 
 type ArticleEditorProps = {
   publicId: string;
@@ -168,6 +171,8 @@ type ContentEditorProps = {
   onSavingChange?: (isSaving: boolean) => void;
 };
 
+const lowlight = createLowlight(common);
+
 function ContentEditor({
   publicId,
   initialContent,
@@ -192,11 +197,17 @@ function ContentEditor({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        codeBlock: {
-          enableTabIndentation: true,
-          tabSize: 2,
-        },
+        codeBlock: false,
         heading: { levels: [1, 2, 3] },
+      }),
+      CodeBlockLowlight.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlock);
+        },
+      }).configure({
+        enableTabIndentation: true,
+        lowlight,
+        tabSize: 2,
       }),
       Markdown.configure({
         markedOptions: {
