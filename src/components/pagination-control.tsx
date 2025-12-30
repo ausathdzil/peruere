@@ -35,7 +35,7 @@ type PaginationControlProps = {
   hasPrev: boolean;
 } & React.ComponentProps<typeof Pagination>;
 
-export async function PaginationControl({
+export function PaginationControl({
   pathname,
   currentPage,
   totalPages,

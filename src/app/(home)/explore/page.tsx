@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { SearchParams } from 'nuqs';
 import { Suspense } from 'react';
+
 import { PaginationControl } from '@/components/pagination-control';
 import { SearchInput } from '@/components/search-input';
 import { Empty, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
@@ -41,31 +42,22 @@ async function Articles({ searchParams }: ArticlesProps) {
   const { q, page, limit } = await searchParamsCache.parse(searchParams);
   const { articles } = await getArticles(q, page, limit);
 
+  if (articles?.data.length === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>No articles found…</EmptyTitle>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
   const {
     page: currentPage,
     hasNext,
     hasPrev,
     totalPages,
   } = articles?.pagination ?? {};
-
-  if (articles?.data.length === 0) {
-    return (
-      <>
-        <Empty>
-          <EmptyHeader>
-            <EmptyTitle>No articles found…</EmptyTitle>
-          </EmptyHeader>
-        </Empty>
-        <PaginationControl
-          currentPage={currentPage ?? 1}
-          hasNext={hasNext ?? false}
-          hasPrev={hasPrev ?? false}
-          pathname="/explore"
-          totalPages={totalPages ?? 1}
-        />
-      </>
-    );
-  }
 
   return (
     <>
