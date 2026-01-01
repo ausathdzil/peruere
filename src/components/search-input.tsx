@@ -42,7 +42,7 @@ export function SearchInput({
   const handleSearch = (term: string) => {
     startTransition(async () => {
       await setSearchParams(
-        { q: term },
+        { q: term, page: 1 },
         {
           limitUrlUpdates: term === '' ? undefined : debounce(300),
           startTransition,

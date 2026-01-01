@@ -1,15 +1,86 @@
-import type { Route } from 'next';
+'use client';
 
-import { serializeSearchParams } from '@/lib/search-params';
+import { useQueryStates } from 'nuqs';
+import { useTransition } from 'react';
+
+import { searchParamsParser } from '@/lib/search-params';
+import { cn } from '@/lib/utils';
 import {
   Pagination,
+  PaginationButton,
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
+  PaginationNextButton,
+  PaginationPreviousButton,
 } from './ui/pagination';
+
+type PaginationControlProps = {
+  pathname: string;
+  currentPage: number;
+  totalPages: number;
+} & React.ComponentProps<typeof Pagination>;
+
+export function PaginationControl({
+  pathname,
+  currentPage,
+  totalPages,
+  ...props
+}: PaginationControlProps) {
+  const [isPending, startTransition] = useTransition();
+  const [{ page }, setSearchParams] = useQueryStates(searchParamsParser);
+
+  const allPages = generatePagination(page, totalPages);
+
+  const handlePageChange = (page: number) => {
+    startTransition(async () => {
+      await setSearchParams({ page }, { startTransition });
+    });
+  };
+
+  return (
+    <>
+      <Pagination {...props}>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPreviousButton
+              disabled={page === 1}
+              onClick={() => handlePageChange(page - 1)}
+            />
+          </PaginationItem>
+          {allPages.map((p) =>
+            p === '…' ? (
+              <PaginationItem key={p}>
+                <PaginationEllipsis />
+              </PaginationItem>
+            ) : typeof p === 'number' ? (
+              <PaginationItem key={p}>
+                <PaginationButton
+                  isActive={p === page}
+                  onClick={() => handlePageChange(p)}
+                >
+                  {p}
+                </PaginationButton>
+              </PaginationItem>
+            ) : null,
+          )}
+          <PaginationItem>
+            <PaginationNextButton
+              disabled={page === totalPages}
+              onClick={() => handlePageChange(page + 1)}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+      <div
+        className={cn(
+          'fixed top-0 right-0 left-0 z-50 h-0.5 origin-left bg-primary transition-transform duration-300',
+          isPending ? 'scale-x-100' : 'scale-x-0',
+        )}
+      />
+    </>
+  );
+}
 
 function generatePagination(page: number, totalPages: number) {
   if (totalPages <= 7) {
@@ -25,62 +96,4 @@ function generatePagination(page: number, totalPages: number) {
   }
 
   return [1, '…', page - 1, page, page + 1, '…', totalPages];
-}
-
-type PaginationControlProps = {
-  pathname: string;
-  currentPage: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-} & React.ComponentProps<typeof Pagination>;
-
-export function PaginationControl({
-  pathname,
-  currentPage,
-  totalPages,
-  hasNext,
-  hasPrev,
-  ...props
-}: PaginationControlProps) {
-  const allPages = generatePagination(currentPage, totalPages);
-
-  const createPageUrl = (page: number) => {
-    return serializeSearchParams(pathname, { page }) as Route;
-  };
-
-  return (
-    <Pagination {...props}>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            disabled={!hasPrev}
-            href={createPageUrl(currentPage - 1)}
-          />
-        </PaginationItem>
-        {allPages.map((p) =>
-          p === '…' ? (
-            <PaginationItem key={p}>
-              <PaginationEllipsis />
-            </PaginationItem>
-          ) : typeof p === 'number' ? (
-            <PaginationItem key={p}>
-              <PaginationLink
-                href={createPageUrl(p)}
-                isActive={p === currentPage}
-              >
-                {p}
-              </PaginationLink>
-            </PaginationItem>
-          ) : null,
-        )}
-        <PaginationItem>
-          <PaginationNext
-            disabled={!hasNext}
-            href={createPageUrl(currentPage + 1)}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-  );
 }

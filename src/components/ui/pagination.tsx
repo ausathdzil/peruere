@@ -121,6 +121,64 @@ function PaginationEllipsis({
   )
 }
 
+type PaginationButtonProps = {
+  isActive?: boolean
+} & React.ComponentProps<typeof Button>
+
+function PaginationButton({
+  className,
+  isActive,
+  size = "icon",
+  ...props
+}: PaginationButtonProps) {
+  return (
+    <Button
+      aria-current={isActive ? "page" : undefined}
+      data-slot="pagination-link"
+      data-active={isActive}
+      variant={isActive ? "outline" : "ghost"}
+      size={size}
+      {...props}
+    />
+  )
+}
+
+function PaginationPreviousButton({
+  className,
+  ...props
+}: React.ComponentProps<typeof PaginationButton>) {
+  return (
+    <PaginationButton
+      aria-label="Go to previous page"
+      size="default"
+      className={cn("pl-2!", className)}
+      {...props}
+    >
+      <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} data-icon="inline-start" />
+      <span className="hidden sm:block">
+        Previous
+      </span>
+    </PaginationButton>
+  )
+}
+
+function PaginationNextButton({
+  className,
+  ...props
+}: React.ComponentProps<typeof PaginationButton>) {
+  return (
+    <PaginationButton
+      aria-label="Go to next page"
+      size="default"
+      className={cn("pr-2!", className)}
+      {...props}
+    >
+      <span className="hidden sm:block">Next</span>
+      <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} data-icon="inline-end" />
+    </PaginationButton>
+  )
+}
+
 export {
   Pagination,
   PaginationContent,
@@ -129,4 +187,7 @@ export {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationButton,
+  PaginationPreviousButton,
+  PaginationNextButton,
 }

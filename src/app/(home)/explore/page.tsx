@@ -38,8 +38,8 @@ export default function ExplorePage({ searchParams }: ExplorePageProps) {
 }
 
 async function Articles({ searchParams }: ExplorePageProps) {
-  const { q, page, limit } = await searchParamsCache.parse(searchParams);
-  const { articles } = await getArticles(q, page, limit);
+  const { q, page } = await searchParamsCache.parse(searchParams);
+  const { articles } = await getArticles(q, page, 1);
 
   if (articles?.data.length === 0) {
     return (
@@ -51,12 +51,7 @@ async function Articles({ searchParams }: ExplorePageProps) {
     );
   }
 
-  const {
-    page: currentPage,
-    hasNext,
-    hasPrev,
-    totalPages,
-  } = articles?.pagination ?? {};
+  const { totalPages } = articles?.pagination ?? {};
 
   return (
     <>
@@ -80,9 +75,7 @@ async function Articles({ searchParams }: ExplorePageProps) {
       </ItemGroup>
       <PaginationControl
         className="mt-auto"
-        currentPage={currentPage ?? 1}
-        hasNext={hasNext ?? false}
-        hasPrev={hasPrev ?? false}
+        currentPage={page}
         pathname="/explore"
         totalPages={totalPages ?? 1}
       />
