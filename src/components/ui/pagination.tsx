@@ -55,7 +55,8 @@ function PaginationLink({
     <Link
       className={cn(
         buttonVariants({ variant: isActive ? "outline" : "ghost", size }), 
-        disabled && "opacity-50 pointer-events-none", className
+        disabled && "opacity-50 pointer-events-none", 
+        className
       )}
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"

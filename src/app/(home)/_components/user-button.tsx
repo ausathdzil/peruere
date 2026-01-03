@@ -56,7 +56,7 @@ export async function UserButton({
 
   return (
     <div className={cn('flex items-center gap-4', className)} {...props}>
-      {session && <CreateArticleButton />}
+      {session ? <CreateArticleButton /> : null}
       {session?.user ? (
         <UserDropdown user={session.user} />
       ) : (

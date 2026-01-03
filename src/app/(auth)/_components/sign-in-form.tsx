@@ -90,10 +90,11 @@ export function SignInForm({
       }
     },
     onSubmitInvalid() {
-      const $invalidInput = document.querySelector(
-        '[aria-invalid="true"]',
-      ) as HTMLElement;
-      $invalidInput.focus();
+      const $invalidInput = document.querySelector('[aria-invalid="true"]');
+
+      if ($invalidInput instanceof HTMLElement) {
+        $invalidInput.focus();
+      }
     },
   });
 

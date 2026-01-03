@@ -57,7 +57,7 @@ export function SearchInput({
     }
 
     if (key === 'Escape' && term) {
-      setSearchParams(null);
+      setSearchParams({ q: null, page: 1 });
     }
   };
 
@@ -84,16 +84,15 @@ export function SearchInput({
         value={q}
         {...props}
       />
-      {!isFocused && !q && (
+      {!isFocused && !q ? (
         <InputGroupAddon align="inline-end">
           <Kbd>{isMac ? '⌘' : 'Ctrl'}&nbsp;+&nbsp;K</Kbd>
         </InputGroupAddon>
-      )}
-      {q && (
+      ) : q ? (
         <InputGroupAddon align="inline-end">
           <Kbd>Esc</Kbd>
         </InputGroupAddon>
-      )}
+      ) : null}
     </InputGroup>
   );
 }

@@ -2,16 +2,15 @@
 
 import { FloppyDiskIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { useForm, useStore } from '@tanstack/react-form';
+import { useForm } from '@tanstack/react-form';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { Placeholder } from '@tiptap/extensions';
 import { Markdown } from '@tiptap/markdown';
 import { EditorContent, ReactNodeViewRenderer, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { common, createLowlight } from 'lowlight';
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useTransition } from 'react';
 import { toast } from 'sonner';
-import { useDebouncedCallback } from 'use-debounce';
 import * as z from 'zod/mini';
 
 import { Button } from '@/components/ui/button';
@@ -25,19 +24,56 @@ type ArticleEditorProps = {
   currentContent: string | null | undefined;
 };
 
+const articleSchema = z.object({
+  title: z
+    .string()
+    .check(
+      z.trim(),
+      z.maxLength(255, 'Title must be 255 characters or fewer.'),
+    ),
+  content: z.string().check(z.trim()),
+});
+
 export function ArticleEditor({
   publicId,
   currentTitle,
   currentContent,
 }: ArticleEditorProps) {
-  const [titleSaving, setTitleSaving] = useState(false);
-  const [contentSaving, setContentSaving] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const isSaving = titleSaving || contentSaving;
+  const form = useForm({
+    defaultValues: {
+      title: currentTitle ?? '',
+      content: currentContent ?? '',
+    },
+    validators: {
+      onSubmit: articleSchema,
+    },
+    listeners: {
+      onChangeDebounceMs: 1000,
+      onChange: ({ formApi }) => {
+        if (formApi.state.isValid) {
+          formApi.handleSubmit();
+        }
+      },
+    },
+    onSubmit: async ({ value }) => {
+      startTransition(async () => {
+        const res = await updateArticle(publicId, {
+          title: value.title,
+          content: value.content,
+        });
+
+        if (res?.error) {
+          toast.error(res.error.message, { position: 'top-center' });
+        }
+      });
+    },
+  });
 
   return (
     <div className="prose prose-neutral dark:prose-invert mx-auto size-full p-8">
-      {isSaving && (
+      {isPending && (
         <Button
           className="pointer-events-none fixed right-4 bottom-4 z-20 animate-pulse"
           disabled
@@ -50,57 +86,63 @@ export function ArticleEditor({
           Saving…
         </Button>
       )}
-      <TitleEditor
-        initialTitle={currentTitle}
-        onSavingChange={setTitleSaving}
-        publicId={publicId}
-      />
-      <ContentEditor
-        initialContent={currentContent}
-        onSavingChange={setContentSaving}
-        publicId={publicId}
-      />
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <form.Field
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
+
+            return (
+              <TitleEditor
+                errors={field.state.meta.errors}
+                isInvalid={isInvalid}
+                onBlur={field.handleBlur}
+                onChange={field.handleChange}
+                value={field.state.value}
+              />
+            );
+          }}
+          name="title"
+          validators={{
+            onChange: articleSchema.shape.title,
+          }}
+        />
+        <form.Field
+          children={(field) => (
+            <ContentEditor
+              onBlur={field.handleBlur}
+              onChange={field.handleChange}
+              value={field.state.value}
+            />
+          )}
+          name="content"
+        />
+      </form>
     </div>
   );
 }
 
 type TitleEditorProps = {
-  publicId: string;
-  initialTitle: string | null | undefined;
-  onSavingChange?: (isSaving: boolean) => void;
+  errors: Array<{ message?: string } | undefined>;
+  isInvalid: boolean;
+  onBlur: () => void;
+  onChange: (value: string) => void;
+  value: string;
 };
 
-const titleSchema = z.object({
-  title: z
-    .string()
-    .check(
-      z.trim(),
-      z.maxLength(255, 'Title must be 255 characters or fewer.'),
-    ),
-});
-
 function TitleEditor({
-  publicId,
-  initialTitle,
-  onSavingChange,
+  errors,
+  isInvalid,
+  onBlur,
+  onChange,
+  value,
 }: TitleEditorProps) {
-  const [isPending, startTransition] = useTransition();
   const titleRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const form = useForm({
-    defaultValues: {
-      title: initialTitle ?? '',
-    },
-    validators: {
-      onBlur: titleSchema,
-    },
-  });
-
-  const title = useStore(form.store, (state) => state.values.title);
-
-  useEffect(() => {
-    onSavingChange?.(isPending);
-  }, [isPending, onSavingChange]);
 
   useEffect(() => {
     const el = titleRef.current;
@@ -108,93 +150,48 @@ function TitleEditor({
       return;
     }
 
-    el.value = title;
+    el.value = value;
     el.style.height = '0px';
     el.style.height = `${el.scrollHeight}px`;
-  }, [title]);
-
-  const autosaveTitle = useDebouncedCallback((title: string) => {
-    startTransition(async () => {
-      const res = await updateArticle(publicId, { title });
-      if (res?.error) {
-        toast.error(res.error.message, { position: 'top-center' });
-      }
-    });
-  }, 1000);
+  }, [value]);
 
   return (
-    <form.Field name="title">
-      {(field) => {
-        const isInvalid =
-          field.state.meta.isTouched && !field.state.meta.isValid;
-
-        return (
-          <div className="mb-[0.888889em]">
-            <textarea
-              aria-invalid={isInvalid}
-              aria-label="Title"
-              autoCapitalize="on"
-              autoComplete="on"
-              autoCorrect="on"
-              className="w-full resize-none overflow-hidden font-extrabold text-(--tw-prose-headings) text-4xl leading-[1.11111] focus:outline-none"
-              maxLength={255}
-              name="Title"
-              onBlur={field.handleBlur}
-              onChange={(e) => {
-                field.handleChange(e.target.value);
-
-                const el = e.currentTarget;
-                el.style.height = '0px';
-                el.style.height = `${el.scrollHeight}px`;
-
-                if (!isInvalid) {
-                  autosaveTitle(e.target.value);
-                }
-              }}
-              placeholder="Title"
-              ref={titleRef}
-              required
-              rows={1}
-              spellCheck="true"
-              value={field.state.value}
-            />
-            {isInvalid && <FieldError errors={field.state.meta.errors} />}
-          </div>
-        );
-      }}
-    </form.Field>
+    <div className="mb-[0.888889em]">
+      <textarea
+        aria-label="title"
+        autoCapitalize="on"
+        autoComplete="on"
+        autoCorrect="on"
+        className="w-full resize-none overflow-hidden font-extrabold text-(--tw-prose-headings) text-4xl leading-[1.11111] focus:outline-none"
+        maxLength={255}
+        name="title"
+        onBlur={onBlur}
+        onChange={(e) => {
+          onChange(e.currentTarget.value);
+          const el = e.currentTarget;
+          el.style.height = '0px';
+          el.style.height = `${el.scrollHeight}px`;
+        }}
+        placeholder="Title"
+        ref={titleRef}
+        rows={1}
+        spellCheck="true"
+        value={value}
+      />
+      {isInvalid && <FieldError errors={errors} />}
+    </div>
   );
 }
 
-type ContentEditorProps = {
-  publicId: string;
-  initialContent: string | null | undefined;
-  onSavingChange?: (isSaving: boolean) => void;
-};
-
 const lowlight = createLowlight(common);
 
-function ContentEditor({
-  publicId,
-  initialContent,
-  onSavingChange,
-}: ContentEditorProps) {
-  const [content, setContent] = useState(initialContent ?? '');
-  const [isPending, startTransition] = useTransition();
+type ContentEditorProps = {
+  onBlur: () => void;
+  onChange: (value: string) => void;
+  value: string;
+};
 
-  useEffect(() => {
-    onSavingChange?.(isPending);
-  }, [isPending, onSavingChange]);
-
-  const autosaveContent = useDebouncedCallback((content: string) => {
-    startTransition(async () => {
-      const res = await updateArticle(publicId, { content });
-      if (res?.error) {
-        toast.error(res.error.message, { position: 'top-center' });
-      }
-    });
-  }, 1000);
-
+function ContentEditor({ value, onBlur, onChange }: ContentEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -236,18 +233,18 @@ function ContentEditor({
         },
       }),
     ],
+    content: value,
+    contentType: 'markdown',
     editorProps: {
       attributes: {
-        'aria-label': 'Article content',
+        'aria-label': 'content',
         class: 'focus:outline-none',
       },
     },
-    content,
-    contentType: 'markdown',
+    onBlur,
     onUpdate: ({ editor }) => {
       const markdown = editor.getMarkdown();
-      setContent(markdown);
-      autosaveContent(markdown);
+      onChange(markdown);
     },
     immediatelyRender: false,
   });

@@ -25,6 +25,7 @@ export function CodeBlock({
         className="absolute top-2 right-2 [&_select]:bg-popover [&_select]:text-popover-foreground"
         contentEditable={false}
         defaultValue={defaultLanguage}
+        name="language"
         onChange={(e) => updateAttributes({ language: e.target.value })}
         size="sm"
       >
