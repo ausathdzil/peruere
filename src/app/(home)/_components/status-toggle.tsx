@@ -15,11 +15,11 @@ import { searchParamsParser } from '@/lib/search-params';
 
 export function StatusToggle(props: React.ComponentProps<typeof ToggleGroup>) {
   const [isPending, startTransition] = useTransition();
-  const [, setSearchParams] = useQueryStates(searchParamsParser);
+  const [{ status }, setSearchParams] = useQueryStates(searchParamsParser);
 
   const handleStatusChange = (status: 'draft' | 'published' | 'archived') => {
     startTransition(async () => {
-      await setSearchParams({ status, page: 1 }, { startTransition });
+      await setSearchParams({ status, q: null, page: 1 }, { startTransition });
     });
   };
 
@@ -30,6 +30,7 @@ export function StatusToggle(props: React.ComponentProps<typeof ToggleGroup>) {
         onValueChange={(value) => handleStatusChange(value[0])}
         size="lg"
         spacing={2}
+        value={[status]}
         variant="outline"
         {...props}
       >

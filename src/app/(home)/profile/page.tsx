@@ -1,4 +1,4 @@
-import type { Metadata, Route } from 'next';
+import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -115,17 +115,7 @@ async function Articles({ searchParams }: ArticlesProps) {
     <ItemGroup className="list-none gap-4">
       {articles?.data.map((article) => (
         <li key={article.publicId}>
-          <Item
-            render={
-              <Link
-                href={
-                  (status !== 'published'
-                    ? `/editor/${article.publicId}`
-                    : `/@${article.author?.username}/articles/${article.slug}`) as Route
-                }
-              />
-            }
-          >
+          <Item render={<Link href={`/editor/${article.publicId}`} />}>
             <ItemContent>
               <ItemTitle>{article.title || 'Untitled Draft'}</ItemTitle>
               <ItemDescription>{article.excerpt}</ItemDescription>
