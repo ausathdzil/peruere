@@ -27,13 +27,17 @@ const articleSchema = z.object({
       z.trim(),
       z.maxLength(255, 'Title must be 255 characters or fewer.'),
     ),
+  content: z.string().check(z.trim()),
   excerpt: z
     .string()
     .check(
       z.trim(),
       z.maxLength(255, 'Excerpt must be 255 characters or fewer.'),
     ),
-  content: z.string().check(z.trim()),
+  status: z.literal(
+    ['draft', 'published', 'archived'],
+    'Status must be either draft, published, or archived.',
+  ),
 });
 
 export function ArticleEditor({
@@ -46,8 +50,9 @@ export function ArticleEditor({
   const form = useForm({
     defaultValues: {
       title: article.title ?? '',
-      excerpt: article.excerpt ?? '',
       content: article.content ?? '',
+      excerpt: article.excerpt ?? '',
+      status: article.status,
     },
     validators: {
       onSubmit: articleSchema,
@@ -55,8 +60,10 @@ export function ArticleEditor({
     listeners: {
       onChangeDebounceMs: 1000,
       onChange: ({ formApi }) => {
-        if (formApi.state.isValid) {
-          formApi.handleSubmit();
+        if (article.status === 'draft') {
+          if (formApi.state.isValid) {
+            formApi.handleSubmit();
+          }
         }
       },
     },

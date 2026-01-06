@@ -1,24 +1,62 @@
+'use client';
+
 import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { Large } from '@/components/typography';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-export function Header({ title }: { title: string }) {
+type HeaderProps = {
+  title: string;
+} & React.ComponentProps<'header'>;
+
+export function Header({ title, className, children, ...props }: HeaderProps) {
+  const [showTitle, setShowTitle] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const y =
+        window.scrollY ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        0;
+
+      const threshold = 80; // px
+      setShowTitle(y > threshold);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-10 bg-background pt-safe-top">
-      <div className="relative mx-auto flex w-full max-w-6xl items-center gap-4 p-4">
-        <Button
-          nativeButton={false}
-          render={<Link href="/profile" />}
-          size="sm"
-          variant="ghost"
-        >
+    <header
+      className={cn('sticky top-0 z-10 bg-background pt-safe-top', className)}
+      {...props}
+    >
+      <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-4 p-4">
+        <Button onClick={() => router.back()} size="sm" variant="ghost">
           <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} />
           Back
         </Button>
-        <Large className="absolute left-1/2 -translate-x-1/2">{title}</Large>
+        <Large
+          aria-hidden={!showTitle}
+          className={cn(
+            'absolute left-1/2 -translate-x-1/2 transition-opacity',
+            showTitle ? 'opacity-100' : 'opacity-0',
+          )}
+        >
+          {title}
+        </Large>
+        {children}
       </div>
     </header>
   );
