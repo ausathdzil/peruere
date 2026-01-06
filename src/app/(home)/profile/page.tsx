@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import type { SearchParams } from 'nuqs';
 import { Suspense } from 'react';
 
 import { SearchInput } from '@/components/search-input';
@@ -18,7 +16,8 @@ import {
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
 import { auth } from '@/lib/auth';
-import { searchParamsCache } from '@/lib/search-params';
+import { type SearchParams, searchParamsCache } from '@/lib/search-params';
+import { ArticleActions } from '../_components/article-actions';
 import { StatusToggle } from '../_components/status-toggle';
 import { getCurrentUserArticles } from '../_lib/data';
 
@@ -36,7 +35,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function ProfilePage({ searchParams }: PageProps<'/profile'>) {
+type ProfilePageProps = {
+  searchParams: Promise<SearchParams>;
+};
+
+export default function ProfilePage({ searchParams }: ProfilePageProps) {
   return (
     <main className="mx-auto grid w-full max-w-2xl gap-8 p-4 pb-32">
       <Suspense fallback={<ProfileSkeleton />}>
@@ -82,11 +85,7 @@ async function Profile() {
   );
 }
 
-type ArticlesProps = {
-  searchParams: Promise<SearchParams>;
-};
-
-async function Articles({ searchParams }: ArticlesProps) {
+async function Articles({ searchParams }: ProfilePageProps) {
   const { status, q, page, limit } =
     await searchParamsCache.parse(searchParams);
 
@@ -115,11 +114,12 @@ async function Articles({ searchParams }: ArticlesProps) {
     <ItemGroup className="list-none gap-4">
       {articles?.data.map((article) => (
         <li key={article.publicId}>
-          <Item render={<Link href={`/editor/${article.publicId}`} />}>
+          <Item variant="outline">
             <ItemContent>
               <ItemTitle>{article.title || 'Untitled Draft'}</ItemTitle>
               <ItemDescription>{article.excerpt}</ItemDescription>
             </ItemContent>
+            <ArticleActions article={article} />
           </Item>
         </li>
       ))}
