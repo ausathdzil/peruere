@@ -23,7 +23,7 @@ export const me = new Elysia({ prefix: '/me', tags: ['Me'] })
     '/articles',
     async ({ query, user }) => {
       if (!user) {
-        throw new AuthError('You are not allowed to access this resource');
+        throw new AuthError('You are not allowed to access this resource.');
       }
 
       return await ArticleService.getArticles(query, user.username);

@@ -32,7 +32,7 @@ export async function getAuthorByUsername(username: string) {
     .limit(1);
 
   if (!author) {
-    throw new NotFoundError('Author not found');
+    throw new NotFoundError('Author not found.');
   }
 
   return author satisfies AuthorModel.AuthorResponse;
@@ -53,7 +53,7 @@ export async function getAuthorById(id: string) {
     .limit(1);
 
   if (!author) {
-    throw new NotFoundError('Author not found');
+    throw new NotFoundError('Author not found.');
   }
 
   return author satisfies AuthorModel.AuthorResponse;

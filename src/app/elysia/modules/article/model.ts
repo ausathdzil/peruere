@@ -11,6 +11,7 @@ export namespace ArticleModel {
   export const createArticleBody = t.Object({
     title: createArticle.title,
     content: createArticle.content,
+    excerpt: createArticle.excerpt,
     status: createArticle.status,
     coverImage: createArticle.coverImage,
   });

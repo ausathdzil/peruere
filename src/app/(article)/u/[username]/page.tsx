@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
-import { getAuthor, getUserArticles } from '@/app/(home)/_lib/data';
 import { SearchInput } from '@/components/search-input';
 import { Large, Muted } from '@/components/typography';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,6 +16,7 @@ import {
 } from '@/components/ui/item';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type SearchParams, searchParamsCache } from '@/lib/search-params';
+import { getAuthor, getUserArticles } from '../../_lib/data';
 
 type UserPageProps = {
   params: Promise<{ username: string }>;

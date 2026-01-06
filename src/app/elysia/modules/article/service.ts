@@ -9,11 +9,17 @@ import { slugify } from '../utils';
 import type { ArticleModel } from './model';
 
 export async function createArticle(
-  { title, content, status, coverImage }: ArticleModel.CreateArticleBody,
+  {
+    title,
+    content,
+    status,
+    excerpt,
+    coverImage,
+  }: ArticleModel.CreateArticleBody,
   userId: string | undefined,
 ) {
   if (!userId) {
-    throw new AuthError('You are not allowed to perform this action');
+    throw new AuthError('You are not allowed to perform this action.');
   }
 
   const author = await AuthorService.getAuthorById(userId);
@@ -24,7 +30,7 @@ export async function createArticle(
       title: title?.trim(),
       slug: await slugify(title, author.id),
       content: content?.trim(),
-      excerpt: content?.substring(0, 255),
+      excerpt: excerpt?.trim(),
       status,
       coverImage,
       authorId: author.id,
@@ -146,11 +152,11 @@ export async function getArticleByPublicId(
     .limit(1);
 
   if (!article) {
-    throw new NotFoundError('Article not found');
+    throw new NotFoundError('Article not found.');
   }
 
   if (article.status !== 'published' && article.authorId !== userId) {
-    throw new AuthError('You are not allowed to access this resource', 403);
+    throw new AuthError('You are not allowed to access this resource.', 403);
   }
 
   return article satisfies ArticleModel.ArticleResponse;
@@ -189,7 +195,7 @@ export async function getArticleBySlug(slug: string, username: string) {
     .limit(1);
 
   if (!article) {
-    throw new NotFoundError('Article not found');
+    throw new NotFoundError('Article not found.');
   }
 
   return article satisfies ArticleModel.ArticleResponse;
@@ -200,13 +206,14 @@ export async function updateArticle(
   {
     title,
     content,
+    excerpt,
     status: articleStatus,
     coverImage,
   }: ArticleModel.UpdateArticleBody,
   userId: string | undefined,
 ) {
   if (!userId) {
-    throw new AuthError('You are not allowed to perform this action');
+    throw new AuthError('You are not allowed to perform this action.');
   }
 
   const article = await getArticleByPublicId(publicId, userId);
@@ -221,7 +228,10 @@ export async function updateArticle(
 
   if (content !== undefined && content !== article.content) {
     payload.content = content?.trim();
-    payload.excerpt = content?.substring(0, 255);
+  }
+
+  if (excerpt !== undefined && excerpt !== article.excerpt) {
+    payload.excerpt = excerpt?.trim();
   }
 
   if (articleStatus !== undefined && articleStatus !== article.status) {
@@ -263,7 +273,7 @@ export async function deleteArticle(
   userId: string | undefined,
 ) {
   if (!userId) {
-    throw new AuthError('You are not allowed to perform this action');
+    throw new AuthError('You are not allowed to perform this action.');
   }
 
   const article = await getArticleByPublicId(publicId, userId);

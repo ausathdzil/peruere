@@ -13,16 +13,12 @@ import { useEffect, useRef, useTransition } from 'react';
 import { toast } from 'sonner';
 import * as z from 'zod/mini';
 
+import type { ArticleModel } from '@/app/elysia/modules/article/model';
 import { Button } from '@/components/ui/button';
 import { FieldError } from '@/components/ui/field';
 import { updateArticle } from '../_lib/actions';
 import { CodeBlock } from './code-block';
-
-type ArticleEditorProps = {
-  publicId: string;
-  currentTitle: string | null | undefined;
-  currentContent: string | null | undefined;
-};
+import { Header } from './header';
 
 const articleSchema = z.object({
   title: z
@@ -31,20 +27,27 @@ const articleSchema = z.object({
       z.trim(),
       z.maxLength(255, 'Title must be 255 characters or fewer.'),
     ),
+  excerpt: z
+    .string()
+    .check(
+      z.trim(),
+      z.maxLength(255, 'Excerpt must be 255 characters or fewer.'),
+    ),
   content: z.string().check(z.trim()),
 });
 
 export function ArticleEditor({
-  publicId,
-  currentTitle,
-  currentContent,
-}: ArticleEditorProps) {
+  article,
+}: {
+  article: ArticleModel.ArticleResponse;
+}) {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm({
     defaultValues: {
-      title: currentTitle ?? '',
-      content: currentContent ?? '',
+      title: article.title ?? '',
+      excerpt: article.excerpt ?? '',
+      content: article.content ?? '',
     },
     validators: {
       onSubmit: articleSchema,
@@ -59,9 +62,10 @@ export function ArticleEditor({
     },
     onSubmit: async ({ value }) => {
       startTransition(async () => {
-        const res = await updateArticle(publicId, {
+        const res = await updateArticle(article.publicId, {
           title: value.title,
           content: value.content,
+          excerpt: value.excerpt,
         });
 
         if (res?.error) {
@@ -72,64 +76,90 @@ export function ArticleEditor({
   });
 
   return (
-    <div className="prose prose-neutral dark:prose-invert mx-auto size-full p-8">
-      {isPending && (
-        <Button
-          className="pointer-events-none fixed right-4 bottom-4 z-20 animate-pulse"
-          disabled
-          nativeButton={false}
-          render={<div />}
-          size="lg"
-          variant="ghost"
+    <>
+      <Header title={article.title || 'Untitled Draft'} />
+      <main className="prose prose-neutral dark:prose-invert mx-auto size-full p-8">
+        {isPending && (
+          <Button
+            className="pointer-events-none fixed right-4 bottom-4 z-20 animate-pulse"
+            disabled
+            nativeButton={false}
+            render={<div />}
+            size="lg"
+            variant="ghost"
+          >
+            <HugeiconsIcon icon={FloppyDiskIcon} strokeWidth={2} />
+            Saving…
+          </Button>
+        )}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
         >
-          <HugeiconsIcon icon={FloppyDiskIcon} strokeWidth={2} />
-          Saving…
-        </Button>
-      )}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-      >
-        <form.Field
-          children={(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
+          <form.Field
+            children={(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
 
-            return (
-              <TitleEditor
-                errors={field.state.meta.errors}
-                isInvalid={isInvalid}
+              return (
+                <TitleEditor
+                  errors={field.state.meta.errors}
+                  isInvalid={isInvalid}
+                  name={field.name}
+                  onBlur={field.handleBlur}
+                  onChange={field.handleChange}
+                  value={field.state.value}
+                />
+              );
+            }}
+            name="title"
+            validators={{
+              onChange: articleSchema.shape.title,
+            }}
+          />
+          <form.Field
+            children={(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <ExcerptEditor
+                  errors={field.state.meta.errors}
+                  isInvalid={isInvalid}
+                  name={field.name}
+                  onBlur={field.handleBlur}
+                  onChange={field.handleChange}
+                  value={field.state.value}
+                />
+              );
+            }}
+            name="excerpt"
+            validators={{
+              onChange: articleSchema.shape.excerpt,
+            }}
+          />
+          <form.Field
+            children={(field) => (
+              <ContentEditor
                 onBlur={field.handleBlur}
                 onChange={field.handleChange}
                 value={field.state.value}
               />
-            );
-          }}
-          name="title"
-          validators={{
-            onChange: articleSchema.shape.title,
-          }}
-        />
-        <form.Field
-          children={(field) => (
-            <ContentEditor
-              onBlur={field.handleBlur}
-              onChange={field.handleChange}
-              value={field.state.value}
-            />
-          )}
-          name="content"
-        />
-      </form>
-    </div>
+            )}
+            name="content"
+          />
+        </form>
+      </main>
+    </>
   );
 }
 
 type TitleEditorProps = {
   errors: Array<{ message?: string } | undefined>;
   isInvalid: boolean;
+  name: string;
   onBlur: () => void;
   onChange: (value: string) => void;
   value: string;
@@ -138,6 +168,7 @@ type TitleEditorProps = {
 function TitleEditor({
   errors,
   isInvalid,
+  name,
   onBlur,
   onChange,
   value,
@@ -158,13 +189,13 @@ function TitleEditor({
   return (
     <div className="mb-[0.888889em]">
       <textarea
-        aria-label="title"
+        aria-label={name}
         autoCapitalize="on"
         autoComplete="on"
         autoCorrect="on"
         className="w-full resize-none overflow-hidden font-extrabold text-(--tw-prose-headings) text-4xl leading-[1.11111] focus:outline-none"
         maxLength={255}
-        name="title"
+        name={name}
         onBlur={onBlur}
         onChange={(e) => {
           onChange(e.currentTarget.value);
@@ -174,6 +205,61 @@ function TitleEditor({
         }}
         placeholder="Title"
         ref={titleRef}
+        rows={1}
+        spellCheck="true"
+        value={value}
+      />
+      {isInvalid && <FieldError errors={errors} />}
+    </div>
+  );
+}
+
+type ExcerptEditorProps = {
+  errors: Array<{ message?: string } | undefined>;
+  isInvalid: boolean;
+  name: string;
+  onBlur: () => void;
+  onChange: (value: string) => void;
+  value: string;
+};
+
+function ExcerptEditor({
+  errors,
+  name,
+  value,
+  onBlur,
+  onChange,
+  isInvalid,
+}: ExcerptEditorProps) {
+  const excerptRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    const el = excerptRef.current;
+    if (!el) {
+      return;
+    }
+
+    el.value = value;
+    el.style.height = '0px';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
+
+  return (
+    <div className="mb-[0.888889em]">
+      <textarea
+        aria-label={name}
+        className="w-full resize-none overflow-hidden font-semibold text-2xl focus:outline-none"
+        maxLength={255}
+        name={name}
+        onBlur={onBlur}
+        onChange={(e) => {
+          onChange(e.currentTarget.value);
+          const el = e.currentTarget;
+          el.style.height = '0px';
+          el.style.height = `${el.scrollHeight}px`;
+        }}
+        placeholder="Excerpt"
+        ref={excerptRef}
         rows={1}
         spellCheck="true"
         value={value}

@@ -8,12 +8,13 @@ import { elysia } from '@/lib/eden';
 
 export async function updateArticle(
   publicId: string,
-  { title, content, coverImage }: ArticleModel.UpdateArticleBody,
+  { title, content, excerpt, coverImage }: ArticleModel.UpdateArticleBody,
 ) {
   const { data, error } = await elysia.articles({ publicId }).patch(
     {
       title,
       content,
+      excerpt,
       coverImage,
     },
     {

@@ -9,8 +9,16 @@ export const db = {
   insert: spreads(
     {
       createArticle: createInsertSchema(articles, {
+        excerpt: t.Optional(
+          t.Nullable(
+            t.String({
+              maxLength: 255,
+              error: 'Excerpt must be 255 characters or fewer.',
+            }),
+          ),
+        ),
         status: t.UnionEnum(['draft', 'published', 'archived'], {
-          error: 'Status must be either draft, published, or archived',
+          error: 'Status must be either draft, published, or archived.',
         }),
       }),
     },
@@ -19,9 +27,17 @@ export const db = {
   update: spreads(
     {
       updateArticle: createUpdateSchema(articles, {
+        excerpt: t.Optional(
+          t.Nullable(
+            t.String({
+              maxLength: 255,
+              error: 'Excerpt must be 255 characters or fewer.',
+            }),
+          ),
+        ),
         status: t.Optional(
           t.UnionEnum(['draft', 'published', 'archived'], {
-            error: 'Status must be either draft, published, or archived',
+            error: 'Status must be either draft, published, or archived.',
             default: undefined,
           }),
         ),

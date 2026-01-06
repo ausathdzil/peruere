@@ -5,20 +5,23 @@ import {
   renderToHTMLString,
   serializeChildrenToHTMLString,
 } from '@tiptap/static-renderer/pm/html-string';
+import { format } from 'date-fns';
 import { toHtml } from 'hast-util-to-html';
 import { common, createLowlight } from 'lowlight';
-import type { Metadata } from 'next';
+import type { Metadata, Route } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
-import { getArticleBySlug } from '@/app/(home)/_lib/data';
+import { Header } from '@/app/(article)/_components/header';
+import { getUserArticleBySlug } from '@/app/(article)/_lib/data';
 import { Spinner } from '@/components/ui/spinner';
 
 export async function generateMetadata({
   params,
 }: PageProps<'/u/[username]/articles/[slug]'>): Promise<Metadata> {
   const { username, slug } = await params;
-  const { article, error } = await getArticleBySlug(slug, username);
+  const { article, error } = await getUserArticleBySlug(slug, username);
 
   if (error?.status === 404 || !article) {
     return {};
@@ -37,11 +40,11 @@ export default function Page({
   params,
 }: PageProps<'/u/[username]/articles/[slug]'>) {
   return (
-    <main className="grid min-h-screen pt-safe-top">
-      <Suspense fallback={<Spinner className="place-self-center" />}>
+    <div className="flex min-h-screen flex-col">
+      <Suspense fallback={<Spinner className="m-auto" />}>
         <Article params={params} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 
@@ -82,7 +85,7 @@ function highlightCode(code: string, language: string | null) {
 
 async function Article({ params }: ArticleProps) {
   const { username, slug } = await params;
-  const { article, error } = await getArticleBySlug(slug, username);
+  const { article, error } = await getUserArticleBySlug(slug, username);
 
   if (error?.status === 404 || !article) {
     notFound();
@@ -106,10 +109,25 @@ async function Article({ params }: ArticleProps) {
   });
 
   return (
-    <article className="prose prose-neutral dark:prose-invert mx-auto size-full p-8">
-      <h1>{article.title}</h1>
-      {/** biome-ignore lint/security/noDangerouslySetInnerHtml: Sanitized HTML */}
-      <div dangerouslySetInnerHTML={{ __html: html }} />
-    </article>
+    <>
+      <Header title={article.title || 'Untitled Draft'} />
+      <main className="grid min-h-screen">
+        <article className="prose prose-neutral dark:prose-invert mx-auto size-full p-8">
+          <h1>{article.title}</h1>
+          <p className="font-semibold text-2xl">{article.excerpt}</p>
+          <div className="not-prose flex items-center gap-1">
+            <Link href={`/@${article.author?.username}` as Route}>
+              {article.author?.name}
+            </Link>
+            <span>&bull;</span>
+            <time dateTime={format(article.createdAt, 'yyyy-MM-dd')}>
+              {format(article.createdAt, 'MMMM d, yyyy')}
+            </time>
+          </div>
+          {/** biome-ignore lint/security/noDangerouslySetInnerHtml: Sanitized HTML */}
+          <div dangerouslySetInnerHTML={{ __html: html }} />
+        </article>
+      </main>
+    </>
   );
 }

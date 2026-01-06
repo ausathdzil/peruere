@@ -82,7 +82,7 @@ export const article = new Elysia({ prefix: '/articles', tags: ['Articles'] })
     },
     {
       auth: true,
-      body: t.Omit(ArticleModel.updateArticleBody, ['slug', 'excerpt']),
+      body: t.Omit(ArticleModel.updateArticleBody, ['slug']),
       response: {
         200: 'Article',
         401: ArticleModel.articleInvalid,
