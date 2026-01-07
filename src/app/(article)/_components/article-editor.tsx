@@ -16,6 +16,7 @@ import * as z from 'zod/mini';
 import type { ArticleModel } from '@/app/elysia/modules/article/model';
 import { Button } from '@/components/ui/button';
 import { FieldError } from '@/components/ui/field';
+import { cn } from '@/lib/utils';
 import { updateArticle } from '../_lib/actions';
 import { CodeBlock } from './code-block';
 import { Header } from './header';
@@ -60,10 +61,8 @@ export function ArticleEditor({
     listeners: {
       onChangeDebounceMs: 1000,
       onChange: ({ formApi }) => {
-        if (article.status === 'draft') {
-          if (formApi.state.isValid) {
-            formApi.handleSubmit();
-          }
+        if (formApi.state.isValid) {
+          formApi.handleSubmit();
         }
       },
     },
@@ -82,9 +81,18 @@ export function ArticleEditor({
     },
   });
 
+  const formState = form.state;
+
   return (
     <>
-      <Header title={article.title || 'Untitled Draft'} />
+      <Header title={article.title || 'Untitled Draft'}>
+        {article.status === 'draft' ? (
+          <PublishButton
+            isValid={formState.isValid}
+            publicId={article.publicId}
+          />
+        ) : null}
+      </Header>
       <main className="prose prose-neutral dark:prose-invert mx-auto size-full p-8">
         {isPending && (
           <Button
@@ -111,12 +119,19 @@ export function ArticleEditor({
                 field.state.meta.isTouched && !field.state.meta.isValid;
 
               return (
-                <TitleEditor
+                <ResizableTextarea
+                  aria-label={field.name}
+                  autoCapitalize="words"
+                  autoCorrect="on"
+                  className="font-extrabold text-(--tw-prose-headings) text-4xl leading-[1.11111]"
                   errors={field.state.meta.errors}
                   isInvalid={isInvalid}
+                  maxLength={255}
                   name={field.name}
                   onBlur={field.handleBlur}
                   onChange={field.handleChange}
+                  placeholder="Title"
+                  spellCheck="true"
                   value={field.state.value}
                 />
               );
@@ -132,12 +147,19 @@ export function ArticleEditor({
                 field.state.meta.isTouched && !field.state.meta.isValid;
 
               return (
-                <ExcerptEditor
+                <ResizableTextarea
+                  aria-label={field.name}
+                  autoCapitalize="on"
+                  autoCorrect="on"
+                  className="font-semibold text-2xl"
                   errors={field.state.meta.errors}
                   isInvalid={isInvalid}
+                  maxLength={255}
                   name={field.name}
                   onBlur={field.handleBlur}
                   onChange={field.handleChange}
+                  placeholder="Excerpt"
+                  spellCheck="true"
                   value={field.state.value}
                 />
               );
@@ -163,85 +185,65 @@ export function ArticleEditor({
   );
 }
 
-type TitleEditorProps = {
-  errors: Array<{ message?: string } | undefined>;
-  isInvalid: boolean;
-  name: string;
-  onBlur: () => void;
-  onChange: (value: string) => void;
-  value: string;
-};
+type PublishButtonProps = {
+  isValid: boolean;
+  publicId: string;
+} & React.ComponentProps<typeof Button>;
 
-function TitleEditor({
-  errors,
-  isInvalid,
-  name,
-  onBlur,
-  onChange,
-  value,
-}: TitleEditorProps) {
-  const titleRef = useRef<HTMLTextAreaElement | null>(null);
+function PublishButton({ isValid, publicId, ...props }: PublishButtonProps) {
+  const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    const el = titleRef.current;
-    if (!el) {
+  const handlePublish = () => {
+    if (!isValid) {
+      toast.error('Please fix all errors before publishing', {
+        position: 'top-right',
+      });
       return;
     }
 
-    el.value = value;
-    el.style.height = '0px';
-    el.style.height = `${el.scrollHeight}px`;
-  }, [value]);
+    startTransition(async () => {
+      const res = await updateArticle(publicId, {
+        status: 'published',
+      });
+
+      if (res?.error) {
+        toast.error(res.error.message, { position: 'top-right' });
+      }
+    });
+  };
 
   return (
-    <div className="mb-[0.888889em]">
-      <textarea
-        aria-label={name}
-        autoCapitalize="on"
-        autoComplete="on"
-        autoCorrect="on"
-        className="w-full resize-none overflow-hidden font-extrabold text-(--tw-prose-headings) text-4xl leading-[1.11111] focus:outline-none"
-        maxLength={255}
-        name={name}
-        onBlur={onBlur}
-        onChange={(e) => {
-          onChange(e.currentTarget.value);
-          const el = e.currentTarget;
-          el.style.height = '0px';
-          el.style.height = `${el.scrollHeight}px`;
-        }}
-        placeholder="Title"
-        ref={titleRef}
-        rows={1}
-        spellCheck="true"
-        value={value}
-      />
-      {isInvalid && <FieldError errors={errors} />}
-    </div>
+    <Button
+      disabled={isPending}
+      onClick={handlePublish}
+      size="pill-sm"
+      variant="default"
+      {...props}
+    >
+      Publish
+    </Button>
   );
 }
 
-type ExcerptEditorProps = {
+type ResizableTextareaProps = {
   errors: Array<{ message?: string } | undefined>;
   isInvalid: boolean;
-  name: string;
-  onBlur: () => void;
   onChange: (value: string) => void;
   value: string;
-};
+} & Omit<React.ComponentProps<'textarea'>, 'onChange' | 'value'>;
 
-function ExcerptEditor({
+function ResizableTextarea({
   errors,
-  name,
-  value,
-  onBlur,
-  onChange,
   isInvalid,
-}: ExcerptEditorProps) {
-  const excerptRef = useRef<HTMLTextAreaElement | null>(null);
+  onChange,
+  value,
+  className,
+  ...props
+}: ResizableTextareaProps) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    const el = excerptRef.current;
+    const el = textareaRef.current;
     if (!el) {
       return;
     }
@@ -251,25 +253,25 @@ function ExcerptEditor({
     el.style.height = `${el.scrollHeight}px`;
   }, [value]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e.currentTarget.value);
+    const el = e.currentTarget;
+    el.style.height = '0px';
+    el.style.height = `${el.scrollHeight}px`;
+  };
+
   return (
     <div className="mb-[0.888889em]">
       <textarea
-        aria-label={name}
-        className="w-full resize-none overflow-hidden font-semibold text-2xl focus:outline-none"
-        maxLength={255}
-        name={name}
-        onBlur={onBlur}
-        onChange={(e) => {
-          onChange(e.currentTarget.value);
-          const el = e.currentTarget;
-          el.style.height = '0px';
-          el.style.height = `${el.scrollHeight}px`;
-        }}
-        placeholder="Excerpt"
-        ref={excerptRef}
+        className={cn(
+          'w-full resize-none overflow-hidden focus:outline-none',
+          className,
+        )}
+        onChange={handleChange}
+        ref={textareaRef}
         rows={1}
-        spellCheck="true"
         value={value}
+        {...props}
       />
       {isInvalid && <FieldError errors={errors} />}
     </div>
@@ -326,6 +328,7 @@ function ContentEditor({ value, onBlur, onChange }: ContentEditorProps) {
         },
       }),
     ],
+    autofocus: 'end',
     content: value,
     contentType: 'markdown',
     editorProps: {

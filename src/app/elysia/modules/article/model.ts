@@ -61,11 +61,11 @@ export namespace ArticleModel {
   export type ArticlesResponse = typeof articlesResposnse.static;
 
   export const updateArticleBody = t.Object({
+    status: updateArticle.status,
     title: updateArticle.title,
     slug: updateArticle.slug,
     content: updateArticle.content,
     excerpt: updateArticle.excerpt,
-    status: updateArticle.status,
     coverImage: updateArticle.coverImage,
   });
 
