@@ -32,7 +32,8 @@ describe('Author', () => {
       const { data: authors, status } = await elysia.authors.get();
 
       expect(status).toBe(200);
-      expect(authors).toBeArray();
+      expect(authors).not.toBeNull();
+      expect(authors?.data).toBeArray();
     });
   });
 
