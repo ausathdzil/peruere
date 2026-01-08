@@ -110,7 +110,7 @@ async function ArticlesResults({ limit, page, q }: ResultsProps) {
 async function AuthorsResults({ limit, page, q }: ResultsProps) {
   const { authors } = await getAuthors(q, page, limit);
 
-  if (authors?.length === 0) {
+  if (authors?.data.length === 0) {
     return (
       <Empty>
         <EmptyHeader>
@@ -120,10 +120,12 @@ async function AuthorsResults({ limit, page, q }: ResultsProps) {
     );
   }
 
+  const { totalPages } = authors?.pagination ?? {};
+
   return (
     <>
       <ItemGroup className="grid list-none grid-cols-2 gap-4">
-        {authors?.map((author) => (
+        {authors?.data.map((author) => (
           <li key={author.username}>
             <Item
               render={<Link href={`/@${author.username}` as Route} />}
@@ -145,12 +147,12 @@ async function AuthorsResults({ limit, page, q }: ResultsProps) {
           </li>
         ))}
       </ItemGroup>
-      {/* <PaginationControl
+      <PaginationControl
         className="mt-auto"
         currentPage={page}
         pathname="/explore"
         totalPages={totalPages ?? 1}
-      /> */}
+      />
     </>
   );
 }

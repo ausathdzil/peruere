@@ -17,7 +17,7 @@ export async function getArticles(q?: string, page?: number, limit?: number) {
   return { articles };
 }
 
-export async function getAuthors(q?: string, page?: number, limit?: number) {
+export async function getAuthors(q?: string, page?: number, limit = 9) {
   const { data: authors } = await elysia.authors.get({
     query: { q, page, limit },
     fetch: {

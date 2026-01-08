@@ -2,24 +2,25 @@ import Elysia, { t } from 'elysia';
 
 import { ArticleModel } from '../article/model';
 import * as ArticleService from '../article/service';
-import { Ref } from '../utils';
 import { AuthorModel } from './model';
 import * as AuthorService from './service';
 
 export const author = new Elysia({ prefix: '/authors', tags: ['Authors'] })
   .model({
     Author: AuthorModel.authorResponse,
+    Authors: AuthorModel.authorsResponse,
     Article: ArticleModel.articleResponse,
     Articles: ArticleModel.articlesResposnse,
   })
   .get(
     '',
-    async () => {
-      return await AuthorService.getAuthors();
+    async ({ query }) => {
+      return await AuthorService.getAuthors(query);
     },
     {
+      query: AuthorModel.authorsQuery,
       response: {
-        200: t.Array(Ref(AuthorModel.authorResponse)),
+        200: 'Authors',
       },
     },
   )
