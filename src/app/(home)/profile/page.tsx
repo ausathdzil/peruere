@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { auth } from '@/lib/auth';
 import { type SearchParams, searchParamsCache } from '@/lib/search-params';
 import { ArticleActions } from '../_components/article-actions';
+import { EditProfileDialog } from '../_components/edit-profile-dialog';
 import { StatusToggle } from '../_components/status-toggle';
 import { getCurrentUserArticles } from '../_lib/data';
 
@@ -45,13 +46,13 @@ export default function ProfilePage({ searchParams }: ProfilePageProps) {
       <Suspense fallback={<ProfileSkeleton />}>
         <Profile />
       </Suspense>
+      <Suspense fallback={<Skeleton className="h-9 w-full" />}>
+        <SearchInput placeholder="Search articles…" />
+      </Suspense>
       <Suspense
         fallback={<Skeleton className="h-10 w-76.75 justify-self-center" />}
       >
         <StatusToggle className="justify-self-center" />
-      </Suspense>
-      <Suspense fallback={<Skeleton className="h-9 w-full" />}>
-        <SearchInput placeholder="Search articles…" />
       </Suspense>
       <Suspense fallback={<ArticlesSkeleton />}>
         <Articles searchParams={searchParams} />
@@ -70,17 +71,18 @@ async function Profile() {
   }
 
   return (
-    <div className="grid grid-rows-[auto_auto_auto]">
+    <div className="grid grid-rows-[auto_auto_auto] gap-4">
       <Avatar className="size-36 justify-self-center">
         <AvatarImage src={session.user.image ?? ''} />
         <AvatarFallback className="text-6xl">
           {session.user.name.charAt(0)}
         </AvatarFallback>
       </Avatar>
-      <div className="mt-4 space-y-2 text-center">
+      <div className="space-y-2 text-center">
         <Large className="font-display text-3xl">{session.user.name}</Large>
         <Muted className="text-lg">@{session.user.displayUsername}</Muted>
       </div>
+      <EditProfileDialog user={session.user} />
     </div>
   );
 }
@@ -104,7 +106,7 @@ async function Articles({ searchParams }: ProfilePageProps) {
     return (
       <Empty>
         <EmptyHeader>
-          <EmptyTitle>No articles found…</EmptyTitle>
+          <EmptyTitle>No {status} articles found…</EmptyTitle>
         </EmptyHeader>
       </Empty>
     );
