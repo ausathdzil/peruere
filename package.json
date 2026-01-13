@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "bun --bun next dev",
-    "build": "bun --bun next build",
-    "start": "bun --bun next start",
+    "build": "bun next build",
+    "start": "bun next start",
     "lint": "biome lint --write --unsafe",
     "format": "biome format --write",
     "analyze": "bunx next experimental-analyze"

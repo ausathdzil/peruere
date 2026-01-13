@@ -5,7 +5,6 @@ import { article } from '../modules/article';
 import { auth } from '../modules/auth';
 import { author } from '../modules/author';
 import { me } from '../modules/me';
-import { BetterAuthOpenAPI } from '../modules/utils';
 
 export const app = new Elysia({ prefix: '/elysia' })
   .use(
@@ -15,10 +14,8 @@ export const app = new Elysia({ prefix: '/elysia' })
           title: 'Peruere API',
           version: '1.0.0',
         },
-        components: await BetterAuthOpenAPI.components,
-        paths: await BetterAuthOpenAPI.getPaths(),
       },
-      references: fromTypes(),
+      references: fromTypes('src/app/elysia/[[...slugs]]/route.ts'),
     }),
   )
   .use(auth)
