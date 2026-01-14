@@ -1,5 +1,5 @@
 import { getSessionCookie } from 'better-auth/cookies';
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse, type ProxyConfig } from 'next/server';
 
 const protectedRoutes = ['/profile'];
 const authRoutes = ['/sign-in', '/sign-up'];
@@ -22,6 +22,6 @@ export default async function proxy(req: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = {
+export const config: ProxyConfig = {
   matcher: ['/((?!api|elysia|_next/static|_next/image|.*\\.png$).*)'],
 };

@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import * as z from 'zod/mini';
 
 import type { ArticleModel } from '@/app/elysia/modules/article/model';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { FieldError } from '@/components/ui/field';
 import { cn } from '@/lib/utils';
 import { updateArticle } from '../_lib/actions';
@@ -104,19 +104,22 @@ export function ArticleEditor({
         </form.Subscribe>
       </Header>
       <main className="prose prose-neutral dark:prose-invert mx-auto size-full p-8">
-        {isPending && (
-          <Button
-            className="pointer-events-none fixed right-4 bottom-4 z-20 animate-pulse"
-            disabled
-            nativeButton={false}
-            render={<div />}
-            size="lg"
-            variant="ghost"
-          >
-            <HugeiconsIcon icon={FloppyDiskIcon} strokeWidth={2} />
-            Saving…
-          </Button>
-        )}
+        <div
+          className={cn(
+            buttonVariants({ size: 'lg', variant: 'ghost' }),
+            'pointer-events-none fixed right-4 bottom-4 z-20 opacity-50',
+            isPending && 'animate-pulse',
+          )}
+        >
+          {isPending ? (
+            <>
+              <HugeiconsIcon icon={FloppyDiskIcon} strokeWidth={2} />
+              Saving…
+            </>
+          ) : (
+            'Saved'
+          )}
+        </div>
         <form
           onSubmit={(e) => {
             e.preventDefault();
