@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+
 import { Spinner } from '@/components/ui/spinner';
 import { ArticleEditor } from '../../_components/article-editor';
 import { getArtcileByPublicId } from '../../_lib/data';

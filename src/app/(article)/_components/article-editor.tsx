@@ -66,7 +66,7 @@ export function ArticleEditor({
         }
       },
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       startTransition(async () => {
         const res = await updateArticle(article.publicId, {
           title: value.title,
