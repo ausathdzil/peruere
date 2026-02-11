@@ -41,36 +41,6 @@ export async function createDraft() {
   };
 }
 
-export async function deleteArticle(publicId: string, username: string) {
-  const { data, error } = await elysia
-    .articles({ publicId })
-    .delete({}, { headers: await headers() });
-
-  if (error) {
-    return {
-      error: {
-        status: error.status || 500,
-        message:
-          error.value?.message || 'An unknown error occurred, please try again',
-      },
-    };
-  }
-
-  if (data) {
-    revalidateTag('articles', 'max');
-    revalidateTag(`articles-${username}`, 'max');
-    revalidateTag('drafts', 'max');
-    return { message: data.message };
-  }
-
-  return {
-    error: {
-      status: 500,
-      message: 'Unable to delete article, please try again',
-    },
-  };
-}
-
 export async function updateProfile(
   image: string | null | undefined,
   name: string
