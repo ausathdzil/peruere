@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { updateArticle } from '../_lib/actions';
 import { BeforeUnloadGuard } from './before-unload-guard';
 import { ContentEditor } from './content-editor';
+import { EditorActions } from './editor-actions';
 import { Header } from './header';
 import { PublishButton } from './publish-button';
 import { ResizableTextarea } from './resizable-textarea';
@@ -122,15 +123,9 @@ export function ArticleEditor({
           })}
         >
           {(formState) => (
-            <>
-              <PublishButton
-                isContentEmpty={isContentEmpty(formState.content)}
-                isTitleEmpty={formState.title.trim().length === 0}
-                isValid={formState.isValid}
-                publicId={article.publicId}
-                status={formState.status}
-              />
-              {formState.status === 'published' && (
+            <div className="flex items-center gap-2">
+              <EditorActions />
+              {formState.status === 'published' ? (
                 <Button
                   disabled={isPending}
                   form="article-editor-form"
@@ -139,8 +134,16 @@ export function ArticleEditor({
                 >
                   {isPending ? 'Saving…' : 'Save'}
                 </Button>
+              ) : (
+                <PublishButton
+                  isContentEmpty={isContentEmpty(formState.content)}
+                  isTitleEmpty={formState.title.trim().length === 0}
+                  isValid={formState.isValid}
+                  publicId={article.publicId}
+                  status={formState.status}
+                />
               )}
-            </>
+            </div>
           )}
         </form.Subscribe>
       </Header>
