@@ -3,25 +3,21 @@
 import { FloppyDiskIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useForm } from '@tanstack/react-form';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { Placeholder } from '@tiptap/extensions';
-import { Markdown } from '@tiptap/markdown';
-import { EditorContent, ReactNodeViewRenderer, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import { format } from 'date-fns';
-import { common, createLowlight } from 'lowlight';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { toast } from 'sonner';
 import * as z from 'zod/mini';
 
 import type { ArticleModel } from '@/app/elysia/modules/article/model';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { FieldError } from '@/components/ui/field';
 import { cn } from '@/lib/utils';
 import { updateArticle } from '../_lib/actions';
-import { CodeBlock } from './code-block';
+import { BeforeUnloadGuard } from './before-unload-guard';
+import { ContentEditor } from './content-editor';
 import { Header } from './header';
+import { PublishButton } from './publish-button';
+import { ResizableTextarea } from './resizable-textarea';
 
 const articleSchema = z.object({
   title: z
@@ -190,7 +186,7 @@ export function ArticleEditor({
                   onBlur={field.handleBlur}
                   onChange={field.handleChange}
                   placeholder="Title"
-                  spellCheck="true"
+                  spellCheck
                   value={field.state.value}
                 />
               );
@@ -218,7 +214,7 @@ export function ArticleEditor({
                   onBlur={field.handleBlur}
                   onChange={field.handleChange}
                   placeholder="Excerpt"
-                  spellCheck="true"
+                  spellCheck
                   value={field.state.value}
                 />
               );
@@ -242,213 +238,4 @@ export function ArticleEditor({
       </main>
     </>
   );
-}
-
-function BeforeUnloadGuard({ isDirty }: { isDirty: boolean }) {
-  useEffect(() => {
-    if (!isDirty) {
-      return;
-    }
-    const handle = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-    };
-    window.addEventListener('beforeunload', handle);
-    return () => {
-      window.removeEventListener('beforeunload', handle);
-    };
-  }, [isDirty]);
-  return null;
-}
-
-type PublishButtonProps = {
-  isValid: boolean;
-  isTitleEmpty: boolean;
-  isContentEmpty: boolean;
-  status: string | null;
-  publicId: string;
-} & React.ComponentProps<typeof Button>;
-
-function PublishButton({
-  isValid,
-  isTitleEmpty,
-  isContentEmpty,
-  status,
-  publicId,
-  ...props
-}: PublishButtonProps) {
-  const [isPending, startTransition] = useTransition();
-  const [isPublished, setIsPublished] = useState(false);
-
-  if (status !== 'draft') {
-    return null;
-  }
-
-  const handlePublish = () => {
-    if (!isValid) {
-      toast.error('Please fix all errors before publishing', {
-        position: 'top-center',
-      });
-      return;
-    }
-
-    if (isTitleEmpty) {
-      toast.error('Please enter a title before publishing', {
-        position: 'top-center',
-      });
-      return;
-    }
-
-    if (isContentEmpty) {
-      toast.error('Please enter some content before publishing', {
-        position: 'top-center',
-      });
-      return;
-    }
-
-    startTransition(async () => {
-      const res = await updateArticle(publicId, {
-        status: 'published',
-      });
-
-      if (res?.error) {
-        toast.error(res.error.message, { position: 'top-center' });
-      }
-
-      setIsPublished(true);
-    });
-  };
-
-  return (
-    <Button
-      disabled={isPending || isPublished}
-      onClick={handlePublish}
-      size="pill-sm"
-      {...props}
-    >
-      {isPublished ? 'Published' : 'Publish'}
-    </Button>
-  );
-}
-
-type ResizableTextareaProps = {
-  errors: Array<{ message?: string } | undefined>;
-  isInvalid: boolean;
-  onChange: (value: string) => void;
-  value: string;
-} & Omit<React.ComponentProps<'textarea'>, 'onChange' | 'value'>;
-
-function ResizableTextarea({
-  errors,
-  isInvalid,
-  onChange,
-  value,
-  className,
-  ...props
-}: ResizableTextareaProps) {
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) {
-      return;
-    }
-
-    el.value = value;
-    el.style.height = '0px';
-    el.style.height = `${el.scrollHeight}px`;
-  }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.currentTarget.value);
-    const el = e.currentTarget;
-    el.style.height = '0px';
-    el.style.height = `${el.scrollHeight}px`;
-  };
-
-  return (
-    <div className="mb-[0.888889em]">
-      <textarea
-        className={cn(
-          'w-full resize-none overflow-hidden focus:outline-none',
-          className
-        )}
-        onChange={handleChange}
-        ref={textareaRef}
-        rows={1}
-        value={value}
-        {...props}
-      />
-      {isInvalid && <FieldError errors={errors} />}
-    </div>
-  );
-}
-
-const lowlight = createLowlight(common);
-
-interface ContentEditorProps {
-  onBlur: () => void;
-  onChange: (value: string) => void;
-  value: string;
-}
-
-function ContentEditor({ value, onBlur, onChange }: ContentEditorProps) {
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        codeBlock: false,
-        heading: { levels: [1, 2, 3] },
-      }),
-      CodeBlockLowlight.extend({
-        addNodeView() {
-          return ReactNodeViewRenderer(CodeBlock);
-        },
-      }).configure({
-        enableTabIndentation: true,
-        lowlight,
-        tabSize: 2,
-      }),
-      Markdown.configure({
-        markedOptions: {
-          gfm: true,
-        },
-      }),
-      Placeholder.configure({
-        placeholder: ({ node }) => {
-          if (node.type.name === 'heading') {
-            return `Heading ${node.attrs.level}`;
-          }
-
-          if (node.type.name === 'blockquote') {
-            return 'Quote';
-          }
-
-          if (
-            node.type.name === 'bulletList' ||
-            node.type.name === 'orderedList'
-          ) {
-            return 'List';
-          }
-
-          return 'Start writing…';
-        },
-      }),
-    ],
-    autofocus: 'end',
-    content: value,
-    contentType: 'markdown',
-    editorProps: {
-      attributes: {
-        'aria-label': 'content',
-        class: 'focus:outline-none',
-      },
-    },
-    onBlur,
-    onUpdate: ({ editor }) => {
-      const markdown = editor.getMarkdown();
-      onChange(markdown);
-    },
-    immediatelyRender: false,
-  });
-
-  return <EditorContent editor={editor} />;
 }
