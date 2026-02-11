@@ -5,6 +5,7 @@ import {
   Delete01Icon,
   Edit01Icon,
   MoreHorizontalIcon,
+  QuillWrite01Icon,
   ViewIcon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -26,7 +27,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ItemActions } from '@/components/ui/item';
-import { archiveArticle, deleteArticle } from '@/lib/article-actions';
+import {
+  archiveArticle,
+  deleteArticle,
+  moveArticleToDraft,
+} from '@/lib/article-actions';
 
 export function ArticleActions({
   article,
@@ -69,13 +74,28 @@ export function ArticleActions({
     });
   };
 
+  const handleMoveToDraft = () => {
+    startTransition(async () => {
+      const res = await moveArticleToDraft(
+        article.publicId,
+        article.author?.username ?? ''
+      );
+
+      if (res.error) {
+        toast.error(res.error.message);
+        return;
+      }
+      toast.success(res.message);
+    });
+  };
+
   return (
     <ItemActions>
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button size="icon" variant="ghost" />}>
           <HugeiconsIcon icon={MoreHorizontalIcon} strokeWidth={2} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="center">
+        <DropdownMenuContent align="center" className="min-w-56">
           <DropdownMenuGroup>
             <DropdownMenuItem
               render={
@@ -108,6 +128,16 @@ export function ArticleActions({
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
+            {article.status !== 'draft' ? (
+              <DropdownMenuItem onClick={handleMoveToDraft}>
+                Move to draft
+                <HugeiconsIcon
+                  className="ml-auto"
+                  icon={QuillWrite01Icon}
+                  strokeWidth={2}
+                />
+              </DropdownMenuItem>
+            ) : null}
             {article.status !== 'archived' ? (
               <DropdownMenuItem onClick={() => setArchiveDialogOpen(true)}>
                 Archive

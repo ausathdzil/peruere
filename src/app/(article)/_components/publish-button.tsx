@@ -25,7 +25,7 @@ export function PublishButton({
   const [isPending, startTransition] = useTransition();
   const [isPublished, setIsPublished] = useState(false);
 
-  if (status !== 'draft') {
+  if (status === 'published') {
     return null;
   }
 

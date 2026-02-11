@@ -4,6 +4,7 @@ import {
   Archive03Icon,
   Delete01Icon,
   MoreHorizontalIcon,
+  QuillWrite01Icon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useRouter } from 'next/navigation';
@@ -20,7 +21,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { archiveArticle, deleteArticle } from '@/lib/article-actions';
+import {
+  archiveArticle,
+  deleteArticle,
+  moveArticleToDraft,
+} from '@/lib/article-actions';
 
 export function EditorActions({
   article,
@@ -66,6 +71,22 @@ export function EditorActions({
     });
   };
 
+  const handleMoveToDraft = () => {
+    startTransition(async () => {
+      const res = await moveArticleToDraft(
+        article.publicId,
+        article.author?.username ?? ''
+      );
+
+      if (res.error) {
+        toast.error(res.error.message);
+        return;
+      }
+      toast.success(res.message);
+      router.refresh();
+    });
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -76,7 +97,17 @@ export function EditorActions({
         >
           <HugeiconsIcon icon={MoreHorizontalIcon} strokeWidth={2} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="center">
+        <DropdownMenuContent align="center" className="min-w-56">
+          {article.status !== 'draft' ? (
+            <DropdownMenuItem onClick={handleMoveToDraft}>
+              Move to draft
+              <HugeiconsIcon
+                className="ml-auto"
+                icon={QuillWrite01Icon}
+                strokeWidth={2}
+              />
+            </DropdownMenuItem>
+          ) : null}
           {article.status !== 'archived' ? (
             <DropdownMenuItem onClick={() => setArchiveDialogOpen(true)}>
               Archive
