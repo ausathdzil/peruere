@@ -42,7 +42,6 @@ export async function updateArticle(
   if (data) {
     revalidateTag('articles', 'max');
     revalidateTag(`articles-${data.author?.username}`, 'max');
-    revalidateTag(`article-${data.publicId}`, 'max');
     revalidateTag(`article-${data.slug}`, 'max');
     revalidateTag('drafts', 'max');
   }

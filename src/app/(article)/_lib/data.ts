@@ -1,4 +1,3 @@
-import { cacheLife, cacheTag } from 'next/cache';
 import { elysia } from '@/lib/eden';
 
 export async function getAuthor(username: string) {
@@ -28,11 +27,6 @@ export async function getArtcileByPublicId(
   headersRecord: Record<string, string>,
   publicId: string
 ) {
-  'use cache';
-
-  cacheTag(`article-${publicId}`);
-  cacheLife('seconds');
-
   const { data: article, error } = await elysia.articles({ publicId }).get({
     headers: headersRecord,
   });
