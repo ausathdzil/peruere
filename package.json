@@ -9,6 +9,7 @@
     "analyze": "next experimental-analyze",
     "check": "bun x ultracite check",
     "fix": "bun x ultracite fix",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky"
   },
   "dependencies": {
