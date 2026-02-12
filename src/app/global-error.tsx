@@ -2,9 +2,9 @@
 
 import { AlertCircleIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Libre_Franklin } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 
+import { Button } from '@/components/ui/button';
 import {
   Empty,
   EmptyContent,
@@ -13,20 +13,16 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
+import { libreFranklin } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 import './globals.css';
 
-const libreFranklin = Libre_Franklin({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-libre-franklin',
-  display: 'swap',
-});
-
 export default function GlobalError({
   error,
+  reset,
 }: {
   error: Error & { digest?: string };
+  reset: () => void;
 }) {
   return (
     <html lang="en">
@@ -47,8 +43,16 @@ export default function GlobalError({
                 </EmptyMedia>
               </EmptyHeader>
               <EmptyContent>
-                <EmptyDescription>Message: {error.message}</EmptyDescription>
-                <EmptyTitle>Digest: {error.digest}</EmptyTitle>
+                <EmptyDescription>
+                  Message:{' '}
+                  {process.env.NODE_ENV === 'development'
+                    ? error.message
+                    : 'Something went wrong. Please try again.'}
+                </EmptyDescription>
+                {error.digest ? (
+                  <EmptyTitle>Digest: {error.digest}</EmptyTitle>
+                ) : null}
+                <Button onClick={reset}>Try again</Button>
               </EmptyContent>
             </Empty>
           </main>

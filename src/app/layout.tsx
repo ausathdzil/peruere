@@ -1,18 +1,11 @@
 import type { Metadata, Viewport } from 'next';
-import { Libre_Franklin } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { libreFranklin } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 import './globals.css';
-
-const libreFranklin = Libre_Franklin({
-  subsets: ['latin'],
-  weight: ['500', '600', '700', '800'],
-  variable: '--font-libre-franklin',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: {
