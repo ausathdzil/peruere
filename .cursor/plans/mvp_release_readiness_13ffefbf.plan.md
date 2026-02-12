@@ -2,20 +2,17 @@
 name: MVP release readiness
 overview: Assess whether Peruere is close to MVP and define a minimal set of release blockers to address before shipping.
 todos:
-  - id: ci-quality-gates
-    content: Add CI workflow and explicit scripts for lint/typecheck/test so release checks are reproducible.
-    status: pending
-  - id: hook-hardening
-    content: Fix and simplify pre-commit hook to avoid portability/interactive staging issues.
-    status: pending
   - id: error-safety
-    content: Make global error UI safe for production (generic user message, internal details hidden).
+    content: Update global error UX for production-safe messaging and include reset flow.
     status: pending
   - id: env-validation
     content: Add runtime env validation for required secrets/URLs/DB connection.
     status: pending
-  - id: post-mvp-auth-ux
-    content: Plan password reset/email verification and pagination consistency as immediate post-MVP items.
+  - id: typecheck-gate
+    content: Add explicit typecheck command for CI and align Next.js build behavior with CI guarantees.
+    status: pending
+  - id: ci-quality-gates
+    content: Add CI workflow after local release blockers are closed; keep it as release hardening step.
     status: pending
 isProject: false
 ---
@@ -31,27 +28,16 @@ Peruere appears **close to MVP**: core auth, authoring, publish/archive/delete, 
 
 ## P0 Blockers (fix before release)
 
-- Add automated CI checks (no workflows currently): `[.github/](.github/)` is missing.
-- Ensure predictable quality commands in `[package.json](package.json)`: add explicit `test` and `typecheck` scripts (currently only `check`/`fix`).
-- Fix pre-commit reliability in `[.husky/pre-commit](.husky/pre-commit)` (shebang should be first line; current first line runs `bun test`).
-- Avoid leaking internal error details from `[src/app/global-error.tsx](src/app/global-error.tsx)`: currently renders `error.message` and `error.digest` directly.
-- Validate critical env vars at startup (`DATABASE_URL`, auth secrets/URLs): `[.env.example](.env.example)`, `[src/db/index.ts](src/db/index.ts)`, `[src/lib/auth.ts](src/lib/auth.ts)`, `[src/lib/eden.ts](src/lib/eden.ts)`.
+- Update `[src/app/global-error.tsx](src/app/global-error.tsx)` to show user-friendly production text and include a `reset()` retry action. Keep digest display for support/debug workflows and avoid exposing raw server details in production.
+- Validate critical env vars at startup (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and production-safe app URL handling): `[.env.example](.env.example)`, `[src/db/index.ts](src/db/index.ts)`, `[src/lib/auth.ts](src/lib/auth.ts)`, `[src/lib/eden.ts](src/lib/eden.ts)`.
+- Add an explicit type-check gate for CI (for example `tsc --noEmit` in `[package.json](package.json)`), then decide whether to set `typescript.ignoreBuildErrors` in `[next.config.ts](next.config.ts)` based on CI reliability.
+- Keep CI in scope but lower priority for this pass: add a workflow under `.github/workflows/` after the above blockers are addressed.
 
-## P1 Strongly Recommended (can ship shortly after)
+## Deferred To Separate Plan
 
-- Add password reset and email verification flows in auth routes under `[src/app/(auth)/](<src/app/(auth)`/>).
-- Add pagination UX consistency for home/profile lists in `[src/app/(home)/page.tsx](<src/app/(home)`/page.tsx>) and `[src/app/(home)/profile/page.tsx](<src/app/(home)`/profile/page.tsx>).
-- Add baseline production protections in `[next.config.ts](next.config.ts)`: security headers and rate-limit strategy for auth/API.
-- Add route-level `error.tsx` boundaries for major route groups under `[src/app/(home)/](<src/app/(home)`/>), `[src/app/(article)/](<src/app/(article)`/>), `[src/app/(auth)/](<src/app/(auth)`/>).
+- Former P1 items have been moved to a dedicated post-MVP hardening plan file.
 
 ## Evidence Snippets (non-obvious)
-
-```1:4:.husky/pre-commit
-bun test
-
-#!/bin/sh
-# Exit on any error
-```
 
 ```49:52:src/app/global-error.tsx
 <EmptyContent>
@@ -62,7 +48,8 @@ bun test
 
 ## Suggested Release Gate
 
-- CI green on lint + typecheck + tests.
-- Manual smoke test of core journeys: sign up, sign in, create draft, edit, publish, read public article, archive, delete.
+- Global error screen is production-friendly and supports retry via `reset()`.
 - Production env validation passes.
-- No internal error details exposed to end users.
+- Typecheck runs as a mandatory CI step (`tsc --noEmit` equivalent).
+- CI workflow is added and green (lint + typecheck + tests where tests can run via `bun test` directly; a `test` script is optional).
+- Manual smoke test of core journeys: sign up, sign in, create draft, edit, publish, read public article, archive, delete.
