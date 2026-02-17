@@ -23,7 +23,9 @@ export function ScopeToggle(props: React.ComponentProps<typeof ToggleGroup>) {
     <>
       <ToggleGroup
         defaultValue={['articles']}
-        onValueChange={(value) => handleScopeChange(value[0])}
+        onValueChange={(value) =>
+          handleScopeChange(value[0] as 'articles' | 'authors')
+        }
         size="lg"
         spacing={2}
         value={[scope]}

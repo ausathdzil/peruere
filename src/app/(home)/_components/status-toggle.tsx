@@ -27,7 +27,9 @@ export function StatusToggle(props: React.ComponentProps<typeof ToggleGroup>) {
     <>
       <ToggleGroup
         defaultValue={['published']}
-        onValueChange={(value) => handleStatusChange(value[0])}
+        onValueChange={(value) =>
+          handleStatusChange(value[0] as 'draft' | 'published' | 'archived')
+        }
         size="lg"
         spacing={2}
         value={[status]}
