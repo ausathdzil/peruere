@@ -1,3 +1,5 @@
+import { cacheLife, cacheTag } from 'next/cache';
+
 import { elysia } from '@/lib/eden';
 
 export async function getAuthor(username: string) {
@@ -35,6 +37,11 @@ export async function getArtcileByPublicId(
 }
 
 export async function getUserArticleBySlug(slug: string, username: string) {
+  'use cache';
+
+  cacheTag(`article-${slug}`);
+  cacheLife('max');
+
   const { data: article, error } = await elysia
     .authors({ username })
     .articles({ slug })
