@@ -1,9 +1,10 @@
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
 import type { Metadata, Viewport } from 'next';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
-import { libreFranklin } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 import './globals.css';
 
@@ -31,7 +32,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={cn(libreFranklin.variable, 'font-sans dark:antialiased')}
+        className={cn(
+          GeistSans.variable,
+          GeistMono.variable,
+          'prose-pre:bg-pre-background font-sans prose-blockquote:font-normal prose-blockquote:font-serif prose-pre:font-mono prose-blockquote:text-lg prose-pre:text-pre-foreground prose-blockquote:leading-(--text-lg--line-height) prose-p:first-of-type:content-none prose-p:last-of-type:content-none dark:antialiased'
+        )}
       >
         <ThemeProvider
           attribute="class"

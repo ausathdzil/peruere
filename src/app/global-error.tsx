@@ -2,6 +2,8 @@
 
 import { AlertCircleIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
 import { ThemeProvider } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
@@ -13,7 +15,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { libreFranklin } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
 import './globals.css';
 
@@ -27,7 +28,11 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body
-        className={cn(libreFranklin.variable, 'font-sans dark:antialiased')}
+        className={cn(
+          GeistSans.variable,
+          GeistMono.variable,
+          'font-sans dark:antialiased'
+        )}
       >
         <ThemeProvider
           attribute="class"
