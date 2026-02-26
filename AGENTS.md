@@ -112,3 +112,41 @@ Concise rules for building accessible, fast, delightful UIs Use MUST/SHOULD/NEVE
 - MUST: Increase contrast on `:hover/:active/:focus`
 - SHOULD: Match browser UI to bg
 - SHOULD: Avoid gradient banding (use masks when needed)
+
+## Cursor Cloud specific instructions
+
+### Overview
+
+OpenBlog is a Next.js 16 blogging platform (single service). The Elysia API is embedded inside Next.js as a catch-all route handler at `src/app/elysia/[[...slugs]]/route.ts`, not a separate process. See `README.md` for the tech stack.
+
+### Database (PostgreSQL + Neon proxy)
+
+The app uses `@neondatabase/serverless` (HTTP mode via `neon()`) which requires a Neon-compatible HTTP proxy for local PostgreSQL. The local setup uses:
+- **PostgreSQL 16** on `localhost:5432` (user `openblog`, password `openblog`, database `openblog`, superuser privileges required by the proxy)
+- **`local-neon-http-proxy`** Docker container (`ghcr.io/timowilhelm/local-neon-http-proxy:main`) running with `--network host` on port 4444
+- **`neonConfig.fetchEndpoint`** override at `/home/ubuntu/neon-local-config.cjs` that redirects Neon HTTP calls to `http://127.0.0.1:4444/sql`
+
+The `DATABASE_URL` in `.env.local` must use `db.localtest.me` as the host (resolves to 127.0.0.1, recognized by the proxy): `postgresql://openblog:openblog@db.localtest.me:5432/openblog`
+
+**Gotcha:** `drizzle-kit migrate` reports success but does NOT actually create tables against local PostgreSQL. Apply migrations manually via `psql`: `sed 's/--> statement-breakpoint/\n/g' drizzle/<file>.sql | PGPASSWORD=openblog psql -U openblog -h localhost -d openblog`
+
+### Starting services
+
+1. Start PostgreSQL: `sudo service postgresql start`
+2. Start Neon proxy: `docker start neon-proxy || docker run -d --name neon-proxy --network host -e "PG_CONNECTION_STRING=postgres://openblog:openblog@127.0.0.1:5432/openblog" ghcr.io/timowilhelm/local-neon-http-proxy:main`
+3. Start Docker daemon (if not running): `sudo dockerd &>/tmp/dockerd.log &`
+4. Start dev server: `NODE_OPTIONS="--require /home/ubuntu/neon-local-config.cjs" bun run dev`
+
+### Scripts (see `package.json`)
+
+| Task | Command |
+|---|---|
+| Dev server | `NODE_OPTIONS="--require /home/ubuntu/neon-local-config.cjs" bun run dev` |
+| Lint | `bun run check` |
+| Typecheck | `bun run typecheck` (pre-existing errors for Next.js 16 generated types; project uses `ignoreBuildErrors: true`) |
+| Tests | `bun test --preload /workspace/neon-local-config.cjs` (copy config to workspace first: `cp /home/ubuntu/neon-local-config.cjs /workspace/neon-local-config.cjs`, remove after: `rm /workspace/neon-local-config.cjs`) |
+| Build | `NODE_OPTIONS="--require /home/ubuntu/neon-local-config.cjs" bun run build` |
+
+### Environment variables
+
+Stored in `.env.local` (not committed). Required: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`. See `.env.example`.
